@@ -18,6 +18,7 @@ A comprehensive role-based commodities management system built with React, TypeS
   - Add new products (Managers & Store Keepers)
   - Edit existing products (Managers & Store Keepers)
   - Delete products
+  - **Product Report Download**: Export product data as PDF reports with comprehensive product information
 
 ### 🎨 UI Enhancements
 
@@ -83,20 +84,42 @@ The production build will be in the `dist` directory.
 
 ```
 src/
-├── components/          # Reusable components
-│   ├── Layout.tsx      # Main layout with navigation
-│   └── ProtectedRoute.tsx  # Route protection component
-├── contexts/            # React contexts
-│   ├── AuthContext.tsx # Authentication state management
-│   └── ThemeContext.tsx # Theme state management
+├── assets/              # Static assets
+│   └── images/         # Image files (logos, backgrounds, etc.)
+├── components/          # Reusable UI components
+│   ├── ActionButton.tsx    # Action button component
+│   ├── Button.tsx          # Primary button component
+│   ├── Card.tsx            # Card container component
+│   ├── DashboardLayout.tsx # Main dashboard layout wrapper
+│   ├── Footer.tsx          # Footer component
+│   ├── Header.tsx          # Header with navigation and user menu
+│   ├── IconButton.tsx      # Icon button component
+│   ├── KPICard.tsx         # Key Performance Indicator card
+│   ├── Layout.tsx          # Main layout component
+│   ├── ProtectedRoute.tsx # Route protection component
+│   ├── SearchBar.tsx       # Search bar with suggestions
+│   ├── Sidebar.tsx         # Sidebar navigation
+│   ├── Tabs.tsx            # Tab navigation component
+│   └── ThemeTransition.tsx # Theme transition wrapper
+├── contexts/            # React Context providers
+│   ├── AuthContext.tsx     # Authentication state management
+│   ├── LayoutContext.tsx   # Layout mode state management
+│   ├── NotificationContext.tsx # Notification state management
+│   └── ThemeContext.tsx    # Theme state management
+├── data/                # Data files
+│   └── mockData.ts        # Centralized mock data
 ├── pages/              # Page components
-│   ├── Login.tsx       # Login page
-│   ├── Dashboard.tsx   # Dashboard (Manager only)
-│   └── Products.tsx    # Product management page
+│   ├── AccountSettings.tsx # User account settings page
+│   ├── AddProduct.tsx      # Add/Edit product page
+│   ├── Dashboard.tsx       # Dashboard (Manager only)
+│   ├── Login.tsx          # Login page
+│   ├── NotFound.tsx       # 404 error page
+│   ├── Notifications.tsx  # Notifications list page
+│   └── Products.tsx       # Product management page
 ├── services/           # API services
-│   └── api.ts          # API calls and mock data
+│   └── api.ts          # API calls and mock services
 ├── types/              # TypeScript type definitions
-│   └── index.ts        # Shared types
+│   └── index.ts        # Shared types and interfaces
 ├── App.tsx             # Main app component with routing
 ├── main.tsx            # Application entry point
 └── index.css           # Global styles with Tailwind
@@ -179,4 +202,4 @@ src/
 
 ## License
 
-MIT
+RF Rana
