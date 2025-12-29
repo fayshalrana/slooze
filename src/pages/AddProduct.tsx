@@ -71,7 +71,7 @@ export const AddProduct = () => {
     };
 
     try {
-      const newProduct = await productService.create(productData);
+      await productService.create(productData);
       toast.success(`Product "${productData.name}" created successfully`);
       navigate("/products");
     } catch (err) {
