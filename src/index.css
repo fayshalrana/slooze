@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-hover: #e9ecef;
+    --bg-active: #e7f3ff;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --primary-color: #4a90e2;
+    --primary-hover: #357abd;
+    --danger-color: #e74c3c;
+    --danger-hover: #c0392b;
+    --danger-bg: #fee;
+    --warning-color: #f39c12;
+    --warning-bg: #fff3cd;
+  }
+
+  .dark {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-hover: #3d3d3d;
+    --bg-active: #2a3f5f;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --border-color: #404040;
+    --primary-color: #5ba3f5;
+    --primary-hover: #4a90e2;
+    --danger-color: #ff6b6b;
+    --danger-hover: #e74c3c;
+    --danger-bg: #3d1f1f;
+    --warning-color: #ffa726;
+    --warning-bg: #3d2f1f;
+  }
+
+  body {
+    @apply bg-[#e9eef4] dark:bg-black text-gray-900 dark:text-gray-100 transition-colors;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  * {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  /* Disable Recharts bar hover background */
+  .recharts-rectangle.recharts-tooltip-cursor,
+  path.recharts-tooltip-cursor,
+  .recharts-tooltip-cursor,
+  .recharts-tooltip-cursor path,
+  .recharts-tooltip-cursor rect,
+  g.recharts-tooltip-cursor,
+  g.recharts-tooltip-cursor path,
+  g.recharts-tooltip-cursor rect {
+    fill: none !important;
+    fill-opacity: 0 !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+
+  /* Target all paths and rects within tooltip cursor groups */
+  .recharts-bar-chart .recharts-tooltip-cursor,
+  .recharts-bar-chart g.recharts-tooltip-cursor {
+    display: none !important;
+  }
+}
