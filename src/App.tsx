@@ -4,7 +4,6 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { LayoutProvider } from './contexts/LayoutContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { Layout } from './components/Layout';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
