@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
-import profileImage from "../assets/images/fayshalrana.jpg";
+import profileImage from "../assets/images/fayshalrana.webp";
 
 export const AccountSettings = () => {
   const { user } = useAuth();

@@ -22,6 +22,8 @@ import {
   productCategories,
   productUnits,
   viewsChartData,
+  salesChartData,
+  earningsChartData,
 } from "../data/mockData";
 
 interface ProductRow extends Product {
@@ -205,6 +207,10 @@ export const Products = () => {
 
   const totalViews = 112893;
   const trendPercentage = 70.5;
+  const totalSales = 6450;
+  const salesTrendPercentage = 65.2;
+  const totalEarnings = products.reduce((sum, p) => sum + p.revenue, 0);
+  const earningsTrendPercentage = 72.8;
 
   if (loading) {
     return (
@@ -373,7 +379,6 @@ export const Products = () => {
                         </svg>
                       </button>
                     </th>
-                    <th className="px-4 py-3 text-left"></th>
                     <th className="px-4 py-3 text-left">
                       <button
                         onClick={() => handleSort("views")}
@@ -560,17 +565,15 @@ export const Products = () => {
                       className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     >
                       <td className="px-4 py-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedProducts.has(product.id)}
-                          onChange={(e) =>
-                            handleSelectProduct(product.id, e.target.checked)
-                          }
-                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                        />
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedProducts.has(product.id)}
+                            onChange={(e) =>
+                              handleSelectProduct(product.id, e.target.checked)
+                            }
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                          />
                           <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
                             {product.image ? (
                               <img
@@ -824,7 +827,7 @@ export const Products = () => {
       </div>
 
       {/* Right Analytics Panel */}
-      <div className="w-80 hidden xl:block">
+      <div className="w-96 hidden xl:block">
         <div className="sticky top-24">
           <Button
             onClick={() => navigate("/products/add")}
@@ -892,6 +895,148 @@ export const Products = () => {
                   type="monotone"
                   dataKey="views"
                   stroke="#f97316"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="previous"
+                  stroke="#9ca3af"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+
+          <Card className="mt-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              Total Sales
+            </h3>
+
+            <div className="mb-4">
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                + {totalSales.toLocaleString()}
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  trend title
+                </span>
+                <svg
+                  className="w-4 h-4 text-green-600 dark:text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 10l7-7m0 0l7 7m-7-7v18"
+                  />
+                </svg>
+                <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                  {salesTrendPercentage}%
+                </span>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={150}>
+              <LineChart data={salesChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#6b7280"
+                  fontSize={10}
+                  tick={{ fill: "#6b7280" }}
+                />
+                <YAxis
+                  stroke="#6b7280"
+                  fontSize={10}
+                  tick={{ fill: "#6b7280" }}
+                  domain={[0, "dataMax"]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="previous"
+                  stroke="#9ca3af"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+
+          <Card className="mt-4">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+              Total Earnings
+            </h3>
+
+            <div className="mb-4">
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                $ {totalEarnings.toLocaleString()}
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                  trend title
+                </span>
+                <svg
+                  className="w-4 h-4 text-green-600 dark:text-green-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 10l7-7m0 0l7 7m-7-7v18"
+                  />
+                </svg>
+                <span className="text-sm text-green-600 dark:text-green-400 font-medium">
+                  {earningsTrendPercentage}%
+                </span>
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={150}>
+              <LineChart data={earningsChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#6b7280"
+                  fontSize={10}
+                  tick={{ fill: "#6b7280" }}
+                />
+                <YAxis
+                  stroke="#6b7280"
+                  fontSize={10}
+                  tick={{ fill: "#6b7280" }}
+                  domain={[0, "dataMax"]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="earnings"
+                  stroke="#10b981"
                   strokeWidth={2}
                   dot={false}
                 />

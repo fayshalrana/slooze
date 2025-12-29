@@ -360,6 +360,26 @@ export const viewsChartData = [
   { date: "Dec 20th", views: 112893, previous: 105000 },
 ];
 
+export const salesChartData = [
+  { date: "Nov 20th", sales: 4500, previous: 4200 },
+  { date: "Nov 25th", sales: 4800, previous: 4500 },
+  { date: "Nov 30th", sales: 5200, previous: 4800 },
+  { date: "Dec 5th", sales: 5500, previous: 5200 },
+  { date: "Dec 10th", sales: 5800, previous: 5500 },
+  { date: "Dec 15th", sales: 6100, previous: 5800 },
+  { date: "Dec 20th", sales: 6450, previous: 6100 },
+];
+
+export const earningsChartData = [
+  { date: "Nov 20th", earnings: 125000, previous: 115000 },
+  { date: "Nov 25th", earnings: 135000, previous: 125000 },
+  { date: "Nov 30th", earnings: 145000, previous: 135000 },
+  { date: "Dec 5th", earnings: 155000, previous: 145000 },
+  { date: "Dec 10th", earnings: 165000, previous: 155000 },
+  { date: "Dec 15th", earnings: 175000, previous: 165000 },
+  { date: "Dec 20th", earnings: 188724, previous: 175000 },
+];
+
 // Notifications
 export const initialNotifications: Notification[] = [
   {

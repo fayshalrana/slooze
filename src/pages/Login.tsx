@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
-import darkLoginImage from "../assets/images/dark-login.jpg";
-import lightLoginImage from "../assets/images/light-login.jpg";
+import darkLoginImage from "../assets/images/dark-login.webp";
+import lightLoginImage from "../assets/images/light-login.webp";
 
 const MANAGER_CREDENTIAL_TEXT = "manager@example.com / manager123";
 const STOREKEEPER_CREDENTIAL_TEXT = "storekeeper@example.com / keeper123";
@@ -86,8 +86,13 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      await login({ email, password });
-      navigate("/products");
+      const loggedInUser = await login({ email, password });
+      // Redirect based on role
+      if (loggedInUser.role === "Manager") {
+        navigate("/dashboard");
+      } else {
+        navigate("/products");
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Login failed. Please try again."

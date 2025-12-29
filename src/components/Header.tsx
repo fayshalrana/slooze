@@ -6,14 +6,14 @@ import { useLayout } from "../contexts/LayoutContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import { SearchBar } from "./SearchBar";
 import { IconButton } from "./IconButton";
-import profileImage from "../assets/images/fayshalrana.jpg";
+import profileImage from "../assets/images/fayshalrana.webp";
 
 interface HeaderProps {
   onMenuClick?: () => void;
 }
 
 export const Header = ({ onMenuClick }: HeaderProps) => {
-  const { user, logout } = useAuth();
+  const { user, logout, hasRole } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -324,21 +324,27 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             className="user-avatar w-10 h-10 rounded-full overflow-hidden cursor-pointer hover:opacity-90 transition-all ring-2 ring-blue-50/50 dark:ring-transparent backdrop-blur-sm"
           >
             {user ? (
-              <img
-                src={profileImage}
-                alt={user.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.className +=
-                      " bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold";
-                    parent.textContent = user.name.charAt(0).toUpperCase();
-                  }
-                }}
-              />
+              hasRole("Manager") ? (
+                <img
+                  src={profileImage}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.className +=
+                        " bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold";
+                      parent.textContent = user.name.charAt(0).toUpperCase();
+                    }
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
                 ?
