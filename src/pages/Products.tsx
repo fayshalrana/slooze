@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import jsPDF from "jspdf";
+// @ts-ignore
+import autoTable from "jspdf-autotable";
 import {
   LineChart,
   Line,
@@ -12,6 +16,7 @@ import {
 import { productService } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useLayout } from "../contexts/LayoutContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { Tabs } from "../components/Tabs";
 import { ActionButton } from "../components/ActionButton";
 import { Card } from "../components/Card";
@@ -41,6 +46,9 @@ export const Products = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [showProductDetailsModal, setShowProductDetailsModal] = useState(false);
+  const [selectedProductForDetails, setSelectedProductForDetails] =
+    useState<ProductRow | null>(null);
   const [activeTab, setActiveTab] = useState<"Published" | "Draft">(
     "Published"
   );
@@ -50,8 +58,26 @@ export const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortField, setSortField] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const [filters, setFilters] = useState({
+    category: "",
+    minPrice: "",
+    maxPrice: "",
+    startDate: "",
+    endDate: "",
+  });
   const { hasRole } = useAuth();
   const { productsLayout } = useLayout();
+  const { theme } = useTheme();
+
+  // Chart theme colors
+  const isDark = theme === "dark";
+  const axisColor = isDark ? "#9ca3af" : "#6b7280";
+  const tooltipBg = isDark ? "#151515" : "white";
+  const tooltipBorder = isDark ? "#404040" : "#e5e7eb";
+  const tooltipText = isDark ? "#ffffff" : "#1f2937";
+  const gridColor = isDark ? "#404040" : "#e5e7eb";
 
   const canEdit = hasRole("Manager") || hasRole("Store Keeper");
   const itemsPerPage = 10;
@@ -59,6 +85,22 @@ export const Products = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Close download menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showDownloadMenu && !target.closest(".download-menu-container")) {
+        setShowDownloadMenu(false);
+      }
+    };
+
+    if (showDownloadMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showDownloadMenu]);
 
   // Fetch and generate products
   const fetchProducts = async () => {
@@ -106,7 +148,10 @@ export const Products = () => {
 
       setProducts(allProducts);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load products");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to load products";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -119,9 +164,14 @@ export const Products = () => {
 
   const handleDeleteConfirm = async () => {
     if (!productToDelete) return;
-    setProducts(products.filter((p) => p.id !== productToDelete.id));
-    setShowDeleteModal(false);
-    setProductToDelete(null);
+    try {
+      setProducts(products.filter((p) => p.id !== productToDelete.id));
+      setShowDeleteModal(false);
+      toast.success(`Product "${productToDelete.name}" deleted successfully`);
+      setProductToDelete(null);
+    } catch (err) {
+      toast.error("Failed to delete product");
+    }
   };
 
   const handleDeleteCancel = () => {
@@ -148,9 +198,13 @@ export const Products = () => {
       await productService.update(editingProduct.id, productData);
       setShowEditForm(false);
       setEditingProduct(null);
+      toast.success(`Product "${productData.name}" updated successfully`);
       fetchProducts();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update product");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update product";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -183,7 +237,37 @@ export const Products = () => {
     }
   };
 
-  const sortedProducts = [...products].sort((a, b) => {
+  // Get unique categories from products
+  const categories = Array.from(
+    new Set(products.map((p) => p.category))
+  ).sort();
+
+  // Apply filters
+  const filteredProducts = products.filter((product) => {
+    if (filters.category && product.category !== filters.category) {
+      return false;
+    }
+    if (filters.minPrice && product.price < Number(filters.minPrice)) {
+      return false;
+    }
+    if (filters.maxPrice && product.price > Number(filters.maxPrice)) {
+      return false;
+    }
+    if (filters.startDate) {
+      const productDate = new Date(product.createdAt);
+      const startDate = new Date(filters.startDate);
+      if (productDate < startDate) return false;
+    }
+    if (filters.endDate) {
+      const productDate = new Date(product.createdAt);
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59, 999); // Include entire end date
+      if (productDate > endDate) return false;
+    }
+    return true;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (!sortField) return 0;
     let aVal: any = a[sortField as keyof ProductRow];
     let bVal: any = b[sortField as keyof ProductRow];
@@ -204,6 +288,74 @@ export const Products = () => {
   );
 
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+
+  // Filter handlers
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      category: "",
+      minPrice: "",
+      maxPrice: "",
+      startDate: "",
+      endDate: "",
+    });
+    setCurrentPage(1);
+    toast.success("Filters cleared");
+  };
+
+  const handleApplyFilters = () => {
+    setShowFilterModal(false);
+    toast.success("Filters applied");
+  };
+
+  const handleProductNameClick = (product: ProductRow) => {
+    setSelectedProductForDetails(product);
+    setShowProductDetailsModal(true);
+  };
+
+  // Download functions
+  const handleDownloadPDF = () => {
+    try {
+      const doc = new jsPDF();
+
+      // Add title
+      doc.setFontSize(18);
+      doc.text("Products Report", 14, 22);
+
+      // Add date
+      doc.setFontSize(10);
+      doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+
+      // Prepare table data
+      const tableData = sortedProducts.map((product) => [
+        product.name,
+        product.category,
+        `${product.quantity} ${product.unit}`,
+        `$${product.price.toFixed(2)}`,
+        new Date(product.createdAt).toLocaleDateString(),
+      ]);
+
+      // Add table
+      autoTable(doc, {
+        head: [["Name", "Category", "Quantity", "Price", "Created Date"]],
+        body: tableData,
+        startY: 35,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [59, 130, 246] },
+      });
+
+      // Save PDF
+      doc.save(`products-report-${new Date().toISOString().split("T")[0]}.pdf`);
+      toast.success("PDF downloaded successfully");
+      setShowDownloadMenu(false);
+    } catch (err) {
+      toast.error("Failed to generate PDF");
+    }
+  };
 
   const totalViews = 112893;
   const trendPercentage = 70.5;
@@ -229,17 +381,17 @@ export const Products = () => {
   }
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col xl:flex-row gap-4 xl:gap-6 max-w-full overflow-x-hidden">
       {/* Main Content */}
-      <div className="flex-1">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+      <div className="flex-1 min-w-0 max-w-full">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
           Product
         </h1>
 
         {/* Product Table or Card View */}
         <Card className="overflow-hidden">
           {/* Tabs and Action Buttons */}
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 py-4 px-5">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-700 py-4 px-3 sm:px-5">
             <Tabs
               tabs={[
                 { id: "Published", label: "Published" },
@@ -250,9 +402,70 @@ export const Products = () => {
                 setActiveTab(tabId as "Published" | "Draft")
               }
             />
-            <div className="flex items-center gap-3">
-              <ActionButton label="Filter" />
-              <ActionButton label="Download" />
+            <div className="flex items-center gap-2 sm:gap-3 relative">
+              <ActionButton
+                label="Filter"
+                onClick={() => setShowFilterModal(true)}
+                icon={
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                    />
+                  </svg>
+                }
+              />
+              <div className="relative download-menu-container">
+                <ActionButton
+                  label="Download"
+                  onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                  icon={
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                  }
+                />
+                {showDownloadMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#151515] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="w-full px-4 py-3 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors rounded-lg"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                        />
+                      </svg>
+                      Download as PDF
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -289,7 +502,10 @@ export const Products = () => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                          <h3
+                            className="text-sm font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            onClick={() => handleProductNameClick(product)}
+                          >
                             {product.name}
                           </h3>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -354,8 +570,8 @@ export const Products = () => {
             </div>
           ) : (
             // Table View
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-3 sm:mx-0">
+              <table className="w-full min-w-[640px]">
                 <thead className="bg-gray-50 dark:bg-gray-700/50">
                   <tr>
                     <th className="px-4 py-3 text-left">
@@ -595,7 +811,10 @@ export const Products = () => {
                               <span className="text-2xl">📱</span>
                             )}
                           </div>
-                          <span className="text-gray-900 dark:text-white font-medium">
+                          <span
+                            className="text-gray-900 dark:text-white font-medium cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            onClick={() => handleProductNameClick(product)}
+                          >
                             {product.name}
                           </span>
                         </div>
@@ -637,7 +856,7 @@ export const Products = () => {
           )}
 
           {/* Pagination */}
-          <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <div className="px-3 sm:px-4 py-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
               {Math.min(currentPage * itemsPerPage, sortedProducts.length)} of{" "}
@@ -824,16 +1043,308 @@ export const Products = () => {
             </div>
           </div>
         )}
+
+        {/* Product Details Modal */}
+        {showProductDetailsModal && selectedProductForDetails && (
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowProductDetailsModal(false)}
+          >
+            <div
+              className="bg-white dark:bg-[#151515] rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Product Details
+                </h2>
+                <button
+                  onClick={() => setShowProductDetailsModal(false)}
+                  className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Product Image */}
+                <div className="flex justify-center">
+                  <div className="w-48 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                    {selectedProductForDetails.image ? (
+                      <img
+                        src={selectedProductForDetails.image}
+                        alt={selectedProductForDetails.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = "none";
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = "📱";
+                            parent.className =
+                              "w-48 h-48 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-6xl";
+                          }
+                        }}
+                      />
+                    ) : (
+                      <span className="text-6xl">📱</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Product Information Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Product Name
+                    </label>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {selectedProductForDetails.name}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Category
+                    </label>
+                    <p className="text-lg text-gray-900 dark:text-white">
+                      {selectedProductForDetails.category}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Quantity
+                    </label>
+                    <p className="text-lg text-gray-900 dark:text-white">
+                      {selectedProductForDetails.quantity}{" "}
+                      {selectedProductForDetails.unit}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Price
+                    </label>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      $
+                      {selectedProductForDetails.price.toLocaleString(
+                        undefined,
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Views
+                    </label>
+                    <p className="text-lg text-gray-900 dark:text-white">
+                      {selectedProductForDetails.views.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Revenue
+                    </label>
+                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                      $
+                      {selectedProductForDetails.revenue.toLocaleString(
+                        undefined,
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Created Date
+                    </label>
+                    <p className="text-lg text-gray-900 dark:text-white">
+                      {new Date(
+                        selectedProductForDetails.createdAt
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      Updated Date
+                    </label>
+                    <p className="text-lg text-gray-900 dark:text-white">
+                      {new Date(
+                        selectedProductForDetails.updatedAt
+                      ).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                {selectedProductForDetails.description && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
+                      Description
+                    </label>
+                    <p className="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                      {selectedProductForDetails.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Filter Modal */}
+        {showFilterModal && (
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+            onClick={() => setShowFilterModal(false)}
+          >
+            <div
+              className="bg-white dark:bg-[#151515] rounded-xl p-6 w-full max-w-md shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Filter Products
+              </h2>
+              <div className="space-y-4">
+                {/* Category Filter */}
+                <div>
+                  <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Category
+                  </label>
+                  <select
+                    value={filters.category}
+                    onChange={(e) =>
+                      handleFilterChange("category", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Price Range */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Min Price
+                    </label>
+                    <input
+                      type="number"
+                      value={filters.minPrice}
+                      onChange={(e) =>
+                        handleFilterChange("minPrice", e.target.value)
+                      }
+                      placeholder="0"
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Max Price
+                    </label>
+                    <input
+                      type="number"
+                      value={filters.maxPrice}
+                      onChange={(e) =>
+                        handleFilterChange("maxPrice", e.target.value)
+                      }
+                      placeholder="Any"
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Date Range */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={filters.startDate}
+                      onChange={(e) =>
+                        handleFilterChange("startDate", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={filters.endDate}
+                      onChange={(e) =>
+                        handleFilterChange("endDate", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    handleClearFilters();
+                    setShowFilterModal(false);
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-900 dark:text-white rounded-md font-semibold transition-all"
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={handleApplyFilters}
+                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md font-semibold transition-all"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right Analytics Panel */}
-      <div className="w-96 hidden xl:block">
-        <div className="sticky top-24">
+      <div className="w-full xl:w-96 xl:flex-shrink-0">
+        <div className="xl:sticky xl:top-24">
           <Button
             onClick={() => navigate("/products/add")}
             variant="primary"
             fullWidth
-            className="mb-4 bg-purple-500 hover:bg-purple-600 max-w-max ml-auto"
+            className="mb-4 bg-purple-500 hover:bg-purple-600 w-full xl:max-w-max xl:ml-auto justify-center"
             icon={<span className="text-lg">+</span>}
           >
             Add New Product
@@ -869,27 +1380,29 @@ export const Products = () => {
                 </span>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer key={theme} width="100%" height={200}>
               <LineChart data={viewsChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                 <XAxis
                   dataKey="date"
-                  stroke="#6b7280"
+                  stroke={axisColor}
                   fontSize={10}
-                  tick={{ fill: "#6b7280" }}
+                  tick={{ fill: axisColor }}
                 />
                 <YAxis
-                  stroke="#6b7280"
+                  stroke={axisColor}
                   fontSize={10}
-                  tick={{ fill: "#6b7280" }}
+                  tick={{ fill: axisColor }}
                   domain={[0, "dataMax"]}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "white",
-                    border: "1px solid #e5e7eb",
+                    backgroundColor: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
                     borderRadius: "8px",
+                    color: tooltipText,
                   }}
+                  labelStyle={{ color: tooltipText }}
                 />
                 <Line
                   type="monotone"
@@ -940,27 +1453,29 @@ export const Products = () => {
                 </span>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={150}>
+            <ResponsiveContainer key={theme} width="100%" height={150}>
               <LineChart data={salesChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                 <XAxis
                   dataKey="date"
-                  stroke="#6b7280"
+                  stroke={axisColor}
                   fontSize={10}
-                  tick={{ fill: "#6b7280" }}
+                  tick={{ fill: axisColor }}
                 />
                 <YAxis
-                  stroke="#6b7280"
+                  stroke={axisColor}
                   fontSize={10}
-                  tick={{ fill: "#6b7280" }}
+                  tick={{ fill: axisColor }}
                   domain={[0, "dataMax"]}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "white",
-                    border: "1px solid #e5e7eb",
+                    backgroundColor: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
                     borderRadius: "8px",
+                    color: tooltipText,
                   }}
+                  labelStyle={{ color: tooltipText }}
                 />
                 <Line
                   type="monotone"
@@ -1011,27 +1526,29 @@ export const Products = () => {
                 </span>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={150}>
+            <ResponsiveContainer key={theme} width="100%" height={150}>
               <LineChart data={earningsChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                 <XAxis
                   dataKey="date"
-                  stroke="#6b7280"
+                  stroke={axisColor}
                   fontSize={10}
-                  tick={{ fill: "#6b7280" }}
+                  tick={{ fill: axisColor }}
                 />
                 <YAxis
-                  stroke="#6b7280"
+                  stroke={axisColor}
                   fontSize={10}
-                  tick={{ fill: "#6b7280" }}
+                  tick={{ fill: axisColor }}
                   domain={[0, "dataMax"]}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "white",
-                    border: "1px solid #e5e7eb",
+                    backgroundColor: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
                     borderRadius: "8px",
+                    color: tooltipText,
                   }}
+                  labelStyle={{ color: tooltipText }}
                 />
                 <Line
                   type="monotone"

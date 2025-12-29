@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { productService } from "../services/api";
 import { useLayout } from "../contexts/LayoutContext";
 import { Card } from "../components/Card";
@@ -70,10 +71,13 @@ export const AddProduct = () => {
     };
 
     try {
-      await productService.create(productData);
+      const newProduct = await productService.create(productData);
+      toast.success(`Product "${productData.name}" created successfully`);
       navigate("/products");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create product");
+      const errorMessage = err instanceof Error ? err.message : "Failed to create product";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

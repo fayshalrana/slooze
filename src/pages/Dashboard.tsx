@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   BarChart,
   Bar,
@@ -83,9 +84,9 @@ export const Dashboard = () => {
         const data = await dashboardService.getStats();
         setStats(data);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load dashboard data"
-        );
+        const errorMessage = err instanceof Error ? err.message : "Failed to load dashboard data";
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -118,9 +119,9 @@ export const Dashboard = () => {
   const trendPercentage = 70.5;
 
   return (
-    <div className={dashboardLayout === "grid" ? "p-4" : "space-y-6"}>
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+    <div className={`${dashboardLayout === "grid" ? "p-2 sm:p-4" : "space-y-4 sm:space-y-6"} max-w-full overflow-x-hidden`}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           Dashboard
         </h1>
         <Button
@@ -755,7 +756,7 @@ export const Dashboard = () => {
         // Default Layout
         <>
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             <KPICard
               title="Total Earning"
               value={`$${totalEarning.toLocaleString("en-US", {
@@ -785,12 +786,14 @@ export const Dashboard = () => {
           </div>
 
           {/* Overview and Recent Sales */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
+            <Card className="lg:col-span-2 overflow-x-hidden">
+              <h2 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-6">
                 Overview
               </h2>
-              <ResponsiveContainer key={theme} width="100%" height={500}>
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[600px] sm:min-w-0 h-[300px] sm:h-[500px]">
+                  <ResponsiveContainer key={theme} width="100%" height="100%">
                 <BarChart data={overviewDataWithBackground}>
                   <defs>
                     <linearGradient
@@ -851,10 +854,12 @@ export const Dashboard = () => {
                   />
                 </BarChart>
               </ResponsiveContainer>
+                </div>
+              </div>
             </Card>
 
             <Card>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              <h2 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
                 Recent Sales
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">

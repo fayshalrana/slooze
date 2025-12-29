@@ -386,7 +386,7 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
 
   return (
     <div
-      className={`w-64 bg-gray-100 dark:bg-[#151515] border-r border-gray-200 dark:border-gray-700 h-[100vh] lg:h-screen fixed left-0 top-0 overflow-y-auto z-50 transform transition-transform duration-300 ${
+      className={`w-64 bg-gray-100 dark:bg-[#151515] border-r border-gray-200 dark:border-gray-700 h-full lg:h-screen fixed left-0 top-0 overflow-y-auto z-50 transform transition-all duration-200 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
       } lg:translate-x-0`}
     >
@@ -491,6 +491,12 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
                               )}
                               <Link
                                 to={child.path || "#"}
+                                onClick={() => {
+                                  // Close sidebar on mobile when submenu item is clicked
+                                  if (onClose) {
+                                    onClose();
+                                  }
+                                }}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm ${
                                   active
                                     ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold"
@@ -514,9 +520,31 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
                       </div>
                     )}
                   </>
+                ) : item.label === "Help And Support" ? (
+                  <a
+                    href="mailto:imfayshalrana@gmail.com"
+                    onClick={() => {
+                      // Close sidebar on mobile when menu item is clicked
+                      if (onClose) {
+                        onClose();
+                      }
+                    }}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800"
+                  >
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {item.icon}
+                    </span>
+                    <span className="font-medium text-sm">{item.label}</span>
+                  </a>
                 ) : (
                   <Link
                     to={item.path || "#"}
+                    onClick={() => {
+                      // Close sidebar on mobile when menu item is clicked
+                      if (onClose) {
+                        onClose();
+                      }
+                    }}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                       isActive(item.path || "")
                         ? "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-medium"

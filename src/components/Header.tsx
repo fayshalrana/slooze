@@ -81,10 +81,10 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
 
   return (
     <header
-      className={`px-4 lg:px-6 py-4 flex items-center justify-between sticky top-0 z-10 transition-all duration-300 ${
+      className={`px-4 lg:px-6 py-4 flex items-center justify-between sticky top-0 z-30 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/80 dark:bg-[#151515]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700"
-          : "bg-transparent border-b border-transparent"
+          ? "bg-white/95 dark:bg-[#151515]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm"
+          : "bg-white dark:bg-[#151515] border-b border-gray-200 dark:border-gray-700"
       }`}
     >
       <div className="flex items-center gap-4 flex-1">
@@ -153,11 +153,20 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             ariaLabel="Notifications"
           />
           {notificationOpen && (
-            <div className="notification-dropdown absolute right-0 mt-2 w-80 bg-white dark:bg-[#151515] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="notification-dropdown fixed sm:absolute right-2 sm:right-0 top-[4.5rem] sm:top-auto sm:mt-2 w-[calc(100vw-1rem)] sm:w-80 max-w-sm bg-white dark:bg-[#151515] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Notifications
                 </h3>
+                <button
+                  onClick={() => {
+                    setNotificationOpen(false);
+                    navigate("/notifications");
+                  }}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+                >
+                  View All
+                </button>
               </div>
               <div className="divide-y divide-gray-200 dark:divide-gray-700 max-h-80 overflow-y-auto">
                 {notifications.slice(0, 5).map((notification) => {
@@ -299,17 +308,6 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   </div>
                 )}
               </div>
-              <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  onClick={() => {
-                    setNotificationOpen(false);
-                    navigate("/notifications");
-                  }}
-                  className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-                >
-                  View All Notifications
-                </button>
-              </div>
             </div>
           )}
         </div>
@@ -361,7 +359,29 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   {user?.email}
                 </p>
               </div>
-              <div className="p-2">
+              <div className="p-2 space-y-1">
+                <button
+                  onClick={() => {
+                    navigate("/settings/profile");
+                    setUserDrawerOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-all flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  Profile
+                </button>
                 <button
                   onClick={handleLogout}
                   className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all flex items-center gap-2"

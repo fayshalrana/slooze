@@ -19,10 +19,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           onClick={() => setSidebarOpen(false)}
         />
       )}
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1 lg:ml-64 min-w-0 max-w-full">
         <Header onMenuClick={() => setSidebarOpen(true)} />
         {/* Main Content */}
-        <main className="p-6 min-h-[calc(100vh-80px)]">{children}</main>
+        <main className="p-4 sm:p-6 min-h-[calc(100vh-80px)] max-w-full overflow-x-hidden">
+          {children}
+        </main>
 
         {/* Footer */}
         <Footer />

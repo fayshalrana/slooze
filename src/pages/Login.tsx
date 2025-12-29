@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import darkLoginImage from "../assets/images/dark-login.webp";
@@ -87,6 +88,7 @@ export const Login = () => {
 
     try {
       const loggedInUser = await login({ email, password });
+      toast.success(`Welcome back, ${loggedInUser.name}!`);
       // Redirect based on role
       if (loggedInUser.role === "Manager") {
         navigate("/dashboard");
@@ -94,9 +96,9 @@ export const Login = () => {
         navigate("/products");
       }
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Login failed. Please try again."
-      );
+      const errorMessage = err instanceof Error ? err.message : "Login failed. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
