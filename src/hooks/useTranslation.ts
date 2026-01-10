@@ -2,12 +2,6 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { translations as enTranslations } from '../translations/en';
 import { translations as bnTranslations } from '../translations/bn';
 
-type TranslationKey = {
-  [K in keyof typeof enTranslations]: {
-    [P in keyof typeof enTranslations[K]]: string;
-  };
-};
-
 const translationMap = {
   en: enTranslations,
   bn: bnTranslations,

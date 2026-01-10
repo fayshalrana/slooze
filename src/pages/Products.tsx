@@ -297,8 +297,6 @@ export const Products = () => {
     currentPage * itemsPerPage
   );
 
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
-
   // Filter handlers
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
