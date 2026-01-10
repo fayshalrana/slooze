@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { productService } from "../services/api";
 import { useLayout } from "../contexts/LayoutContext";
+import { useTranslation } from "../hooks/useTranslation";
 import { Card } from "../components/Card";
 import type { Product } from "../types";
 
 export const AddProduct = () => {
   const navigate = useNavigate();
   const { addProductLayout } = useLayout();
+  const { t } = useTranslation();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [thumbnailImage, setThumbnailImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -72,10 +74,10 @@ export const AddProduct = () => {
 
     try {
       await productService.create(productData);
-      toast.success(`Product "${productData.name}" created successfully`);
+      toast.success(t("addProduct.productCreated", { name: productData.name }));
       navigate("/products");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to create product";
+      const errorMessage = err instanceof Error ? err.message : t("addProduct.failedToCreate");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -84,7 +86,7 @@ export const AddProduct = () => {
   };
 
   const handleDiscard = () => {
-    if (confirm("Are you sure you want to discard all changes?")) {
+    if (confirm(t("addProduct.discardConfirm"))) {
       navigate("/products");
     }
   };
@@ -105,10 +107,10 @@ export const AddProduct = () => {
               isMinimal ? "text-xl" : "text-3xl mb-1"
             }`}
           >
-            Add Product
+            {t("addProduct.title")}
           </h1>
           {!isMinimal && (
-            <p className="text-gray-600 dark:text-gray-400">Add New Product</p>
+            <p className="text-gray-600 dark:text-gray-400">{t("addProduct.addNewProduct")}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -118,7 +120,7 @@ export const AddProduct = () => {
               isMinimal ? "px-3 py-1.5 text-sm" : "px-4 py-2"
             } bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all`}
           >
-            {isMinimal ? "Cancel" : "Discard Change"}
+            {isMinimal ? t("common.cancel") : t("addProduct.discardChange")}
           </button>
           <button
             form="product-form"
@@ -128,7 +130,7 @@ export const AddProduct = () => {
               isMinimal ? "px-3 py-1.5 text-sm" : "px-4 py-2"
             } bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
           >
-            {loading ? "Saving..." : "Save"}
+            {loading ? t("addProduct.saving") : t("common.save")}
           </button>
         </div>
       </div>
@@ -164,14 +166,14 @@ export const AddProduct = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block mb-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium">
-                    Category
+                    {t("addProduct.category")}
                   </label>
                   <select
                     name="category"
                     required
                     className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">Select Category</option>
+                    <option value="">{t("addProduct.selectCategory")}</option>
                     <option value="Grains">Grains</option>
                     <option value="Sweeteners">Sweeteners</option>
                     <option value="Beverages">Beverages</option>
@@ -184,7 +186,7 @@ export const AddProduct = () => {
 
                 <div>
                   <label className="block mb-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium">
-                    Price
+                    {t("addProduct.price")}
                   </label>
                   <input
                     type="number"
@@ -201,7 +203,7 @@ export const AddProduct = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block mb-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium">
-                    Quantity
+                    {t("addProduct.quantity")}
                   </label>
                   <input
                     type="number"
@@ -214,7 +216,7 @@ export const AddProduct = () => {
 
                 <div>
                   <label className="block mb-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium">
-                    Unit
+                    {t("addProduct.unit")}
                   </label>
                   <input
                     type="text"
@@ -227,19 +229,19 @@ export const AddProduct = () => {
 
               <div>
                 <label className="block mb-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium">
-                  Description
+                  {t("addProduct.description")}
                 </label>
                 <textarea
                   name="description"
                   rows={3}
-                  placeholder="Description (optional)"
+                  placeholder={t("addProduct.descriptionOptional")}
                   className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
               </div>
 
               <div>
                 <label className="block mb-1.5 text-sm text-gray-700 dark:text-gray-300 font-medium">
-                  Product Image
+                  {t("addProduct.productImage")}
                 </label>
                 <div
                   onDrop={(e) => handleImageDrop(e, "thumbnail")}
@@ -276,7 +278,7 @@ export const AddProduct = () => {
                         }}
                         className="text-red-500 hover:text-red-600 text-xs font-medium"
                       >
-                        Remove
+                        {t("addProduct.remove")}
                       </button>
                     </div>
                   ) : (
@@ -295,7 +297,7 @@ export const AddProduct = () => {
                         />
                       </svg>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Click to upload image
+                        {t("addProduct.clickToUpload")}
                       </p>
                     </div>
                   )}
@@ -311,25 +313,25 @@ export const AddProduct = () => {
               {/* General Information */}
               <div className="bg-white dark:bg-[#151515] rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  General Information
+                  {t("addProduct.generalInformation")}
                 </h2>
                 <div className="space-y-4">
                   <div>
                     <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                      Product Name
+                      {t("addProduct.productName")}
                     </label>
                     <input
                       type="text"
                       name="name"
                       required
-                      placeholder="Product Name"
+                      placeholder={t("addProduct.productName")}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
 
                   <div>
                     <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                      Product Category
+                      {t("addProduct.productCategory")}
                     </label>
                     <div className="relative">
                       <select
@@ -337,7 +339,7 @@ export const AddProduct = () => {
                         required
                         className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                       >
-                        <option value="">Product Category</option>
+                        <option value="">{t("addProduct.productCategory")}</option>
                         <option value="Grains">Grains</option>
                         <option value="Sweeteners">Sweeteners</option>
                         <option value="Beverages">Beverages</option>
@@ -364,24 +366,24 @@ export const AddProduct = () => {
 
                   <div>
                     <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                      Descriptions
+                      {t("addProduct.descriptions")}
                     </label>
                     <textarea
                       name="description"
                       rows={4}
-                      placeholder="Description"
+                      placeholder={t("addProduct.description")}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                     />
                   </div>
 
                   <div>
                     <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                      Tag Keywoder
+                      {t("addProduct.tagKeywords")}
                     </label>
                     <textarea
                       name="tags"
                       rows={3}
-                      placeholder="Tag Keywoder"
+                      placeholder={t("addProduct.tagKeywords")}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                     />
                   </div>
@@ -391,12 +393,12 @@ export const AddProduct = () => {
               {/* Pricing */}
               <div className="bg-white dark:bg-[#151515] rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  Pricing
+                  {t("addProduct.pricing")}
                 </h2>
                 <div className="space-y-4">
                   <div>
                     <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                      Proce
+                      {t("addProduct.price")}
                     </label>
                     <input
                       type="number"
@@ -404,14 +406,14 @@ export const AddProduct = () => {
                       required
                       min="0"
                       step="0.01"
-                      placeholder="Pricing"
+                      placeholder={t("addProduct.pricing")}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
 
                   <div>
                     <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                      Discount
+                      {t("addProduct.discount")}
                     </label>
                     <input
                       type="number"
@@ -419,21 +421,21 @@ export const AddProduct = () => {
                       min="0"
                       max="100"
                       step="0.01"
-                      placeholder="Discount"
+                      placeholder={t("addProduct.discount")}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
 
                   <div>
                     <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                      Discount Category
+                      {t("addProduct.discountCategory")}
                     </label>
                     <div className="relative">
                       <select
                         name="discountCategory"
                         className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                       >
-                        <option value="">Discount Category</option>
+                        <option value="">{t("addProduct.discountCategory")}</option>
                         <option value="Percentage">Percentage</option>
                         <option value="Fixed">Fixed Amount</option>
                       </select>
@@ -461,10 +463,10 @@ export const AddProduct = () => {
               {/* Previews Product */}
               <div className="bg-white dark:bg-[#151515] rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Previews Product
+                  {t("addProduct.previewsProduct")}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Drag And Your Image Here
+                  {t("addProduct.dragAndYourImageHere")}
                 </p>
                 <div
                   onDrop={(e) => handleImageDrop(e, "preview")}
@@ -519,7 +521,7 @@ export const AddProduct = () => {
                         />
                       </svg>
                       <p className="text-gray-600 dark:text-gray-400 font-medium">
-                        Drag and drop here
+                        {t("addProduct.dragDropHere")}
                       </p>
                     </div>
                   )}
@@ -529,10 +531,10 @@ export const AddProduct = () => {
               {/* Thumbnail Product */}
               <div className="bg-white dark:bg-[#151515] rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Thumnail Product
+                  {t("addProduct.thumbnailProduct")}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Drag And Your Image Here
+                  {t("addProduct.dragDropImage")}
                 </p>
                 <div
                   onDrop={(e) => handleImageDrop(e, "thumbnail")}
@@ -587,7 +589,7 @@ export const AddProduct = () => {
                         />
                       </svg>
                       <p className="text-gray-600 dark:text-gray-400 font-medium">
-                        Drag and drop here
+                        {t("addProduct.dragDropHere")}
                       </p>
                     </div>
                   )}

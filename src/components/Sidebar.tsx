@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface NavItem {
   label: string;
@@ -17,6 +18,7 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
   const location = useLocation();
   const { hasRole } = useAuth();
+  const { t } = useTranslation();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const isActive = (path: string) => location.pathname === path;
@@ -295,11 +297,11 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     ...(hasRole("Manager")
       ? [
           {
-            label: "Home",
+            label: t("sidebar.home"),
             icon: <HomeIcon />,
             children: [
               {
-                label: "Dashboard",
+                label: t("sidebar.dashboard"),
                 path: "/dashboard",
                 icon: <DashboardIcon />,
               },
@@ -308,56 +310,56 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
         ]
       : []),
     {
-      label: "Store",
+      label: t("sidebar.store"),
       icon: <StoreIcon />,
       children: [
-        { label: "Product", path: "/products", icon: <ProductIcon /> },
+        { label: t("sidebar.product"), path: "/products", icon: <ProductIcon /> },
         {
-          label: "Add Product",
+          label: t("sidebar.addProduct"),
           path: "/products/add",
           icon: <AddProductIcon />,
         },
       ],
     },
     {
-      label: "Analytic",
+      label: t("sidebar.analytic"),
       icon: <AnalyticIcon />,
       children: [
-        { label: "Traffic", path: "/analytics/traffic", icon: <TrafficIcon /> },
-        { label: "Earning", path: "/analytics/earning", icon: <EarningIcon /> },
+        { label: t("sidebar.traffic"), path: "/analytics/traffic", icon: <TrafficIcon /> },
+        { label: t("sidebar.earning"), path: "/analytics/earning", icon: <EarningIcon /> },
       ],
     },
     {
-      label: "Finances",
+      label: t("sidebar.finances"),
       icon: <FinancesIcon />,
       children: [
-        { label: "Payment", path: "/finances/payment", icon: <PaymentIcon /> },
-        { label: "Payout", path: "/finances/payout", icon: <PayoutIcon /> },
+        { label: t("sidebar.payment"), path: "/finances/payment", icon: <PaymentIcon /> },
+        { label: t("sidebar.payout"), path: "/finances/payout", icon: <PayoutIcon /> },
       ],
     },
     {
-      label: "Account Setting",
+      label: t("sidebar.accountSetting"),
       icon: <AccountSettingIcon />,
       children: [
         {
-          label: "My Profile",
+          label: t("sidebar.myProfile"),
           path: "/settings/profile",
           icon: <ProfileIcon />,
         },
         {
-          label: "Security",
+          label: t("sidebar.security"),
           path: "/settings/security",
           icon: <SecurityIcon />,
         },
         {
-          label: "Notifications",
+          label: t("sidebar.notifications"),
           path: "/notifications",
           icon: <NotificationIcon />,
         },
       ],
     },
     {
-      label: "Help And Support",
+      label: t("sidebar.helpAndSupport"),
       icon: <HelpSupportIcon />,
     },
   ];

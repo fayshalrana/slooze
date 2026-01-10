@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useTranslation } from "../hooks/useTranslation";
 import darkLoginImage from "../assets/images/dark-login.webp";
 import lightLoginImage from "../assets/images/light-login.webp";
 
@@ -21,6 +22,7 @@ export const Login = () => {
     useState("");
   const { login } = useAuth();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export const Login = () => {
 
     try {
       const loggedInUser = await login({ email, password });
-      toast.success(`Welcome back, ${loggedInUser.name}!`);
+      toast.success(t("login.welcomeBackUser", { name: loggedInUser.name }));
       // Redirect based on role
       if (loggedInUser.role === "Manager") {
         navigate("/dashboard");
@@ -96,7 +98,8 @@ export const Login = () => {
         navigate("/products");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Login failed. Please try again.";
+      const errorMessage =
+        err instanceof Error ? err.message : t("login.loginFailed");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -110,10 +113,10 @@ export const Login = () => {
       <div className="w-full lg:w-2/3 bg-white dark:bg-black flex items-center justify-center p-8 xl:py-0">
         <div className="w-full max-w-md">
           <h1 className="text-4xl font-bold text-black dark:text-white mb-2 text-center">
-            Welcome Back
+            {t("login.welcomeBack")}
           </h1>
           <h2 className="text-lg text-black dark:text-gray-300 mb-8 text-center">
-            Login to your account
+            {t("login.loginToAccount")}
           </h2>
 
           <form onSubmit={handleSubmit}>
@@ -122,7 +125,7 @@ export const Login = () => {
                 htmlFor="email"
                 className="block mb-2 text-black dark:text-white font-medium"
               >
-                Email
+                {t("login.email")}
               </label>
               <input
                 id="email"
@@ -130,7 +133,7 @@ export const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="Email"
+                placeholder={t("login.email")}
                 autoComplete="email"
                 className="w-full px-4 py-3 bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-base text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               />
@@ -141,7 +144,7 @@ export const Login = () => {
                 htmlFor="password"
                 className="block mb-2 text-black dark:text-white font-medium"
               >
-                Password
+                {t("login.password")}
               </label>
               <input
                 id="password"
@@ -149,7 +152,7 @@ export const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="Password"
+                placeholder={t("login.password")}
                 autoComplete="current-password"
                 className="w-full px-4 py-3 bg-gray-100 dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-base text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               />
@@ -167,7 +170,7 @@ export const Login = () => {
                 htmlFor="agree"
                 className="ml-2 text-sm text-black dark:text-gray-300"
               >
-                I agree to all Term, Privacy Policy and fees.
+                {t("login.agreeToTerms")}
               </label>
             </div>
 
@@ -182,14 +185,14 @@ export const Login = () => {
               className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg text-base font-semibold transition-all shadow-lg hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed mb-6"
               disabled={loading || !agreeToTerms}
             >
-              {loading ? "Logging in..." : "Get Started"}
+              {loading ? t("login.loggingIn") : t("login.getStarted")}
             </button>
           </form>
 
           <div className="relative mb-6">
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 font-bold">
-                OR
+                {t("common.or")}
               </span>
             </div>
           </div>
@@ -217,7 +220,7 @@ export const Login = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Sign in with Google
+              {t("login.signInWithGoogle")}
             </button>
             <button
               type="button"
@@ -226,24 +229,24 @@ export const Login = () => {
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
-              Sign in with Facebook
+              {t("login.signInWithFacebook")}
             </button>
           </div>
 
           <div className="text-center text-sm text-black dark:text-gray-300">
-            Already have an account?{" "}
+            {t("login.alreadyHaveAccount")}{" "}
             <a
               href="#"
               className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
             >
-              Login
+              {t("login.login")}
             </a>
           </div>
 
           <div className="pt-2 text-xs text-gray-500 dark:text-gray-400 text-center">
             <p className="mb-2">
               <strong className="text-black dark:text-white">
-                Demo Credentials:
+                {t("login.demoCredentials")}
               </strong>
             </p>
             <p
@@ -256,7 +259,7 @@ export const Login = () => {
                 )
               }
             >
-              <span className="font-medium">Manager:</span>{" "}
+              <span className="font-medium">{t("login.manager")}</span>{" "}
               <span className="inline-block">
                 {typedManagerCredential}
                 {typedManagerCredential.length <
@@ -266,11 +269,11 @@ export const Login = () => {
               </span>
               {copiedCredential === "manager" && (
                 <span className="ml-2 text-green-600 dark:text-green-400 font-semibold">
-                  ✓ Copied!
+                  {t("login.copied")}
                 </span>
               )}
               <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-10">
-                Click to copy and fill credentials
+                {t("login.clickToCopy")}
                 <span className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></span>
               </span>
             </p>
@@ -284,7 +287,7 @@ export const Login = () => {
                 )
               }
             >
-              <span className="font-medium">Store Keeper:</span>{" "}
+              <span className="font-medium">{t("login.storeKeeper")}</span>{" "}
               <span className="inline-block">
                 {typedStorekeeperCredential}
                 {typedStorekeeperCredential.length <
@@ -294,11 +297,11 @@ export const Login = () => {
               </span>
               {copiedCredential === "storekeeper" && (
                 <span className="ml-2 text-green-600 dark:text-green-400 font-semibold">
-                  ✓ Copied!
+                  {t("login.copied")}
                 </span>
               )}
               <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 whitespace-nowrap z-10">
-                Click to copy and fill credentials
+                {t("login.clickToCopy")}
                 <span className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></span>
               </span>
             </p>

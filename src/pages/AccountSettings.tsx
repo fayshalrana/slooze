@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "../hooks/useTranslation";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 import profileImage from "../assets/images/fayshalrana.webp";
 
 export const AccountSettings = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [profileImg, setProfileImg] = useState<string | null>(
@@ -20,7 +22,7 @@ export const AccountSettings = () => {
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    setSuccess("Settings updated successfully!");
+    setSuccess(t("settings.settingsUpdated"));
     setLoading(false);
   };
 
@@ -43,10 +45,10 @@ export const AccountSettings = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-          Account Settings
+          {t("settings.accountSettings")}
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Manage your account information and preferences
+          {t("settings.manageAccountInfo")}
         </p>
       </div>
 
@@ -60,12 +62,12 @@ export const AccountSettings = () => {
         {/* Profile Information */}
         <Card className="lg:col-span-2">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-            Profile Information
+            {t("settings.profileInformation")}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                Full Name
+                {t("settings.fullName")}
               </label>
               <input
                 type="text"
@@ -76,7 +78,7 @@ export const AccountSettings = () => {
 
             <div>
               <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                Email
+                {t("settings.email")}
               </label>
               <input
                 type="email"
@@ -87,7 +89,7 @@ export const AccountSettings = () => {
 
             <div>
               <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                Role
+                {t("settings.role")}
               </label>
               <input
                 type="text"
@@ -99,10 +101,10 @@ export const AccountSettings = () => {
 
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={loading} variant="primary">
-                {loading ? "Saving..." : "Save Changes"}
+                {loading ? t("settings.saving") : t("settings.saveChanges")}
               </Button>
               <Button type="button" variant="secondary">
-                Cancel
+                {t("common.cancel")}
               </Button>
             </div>
           </form>
@@ -111,7 +113,7 @@ export const AccountSettings = () => {
         {/* Profile Picture */}
         <Card>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-            Profile Picture
+            {t("settings.profilePicture")}
           </h2>
           <div className="flex flex-col items-center mb-6">
             <div className="relative w-32 h-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden group">
@@ -162,12 +164,12 @@ export const AccountSettings = () => {
           {/* Security Settings */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-              Security Settings
+              {t("settings.securitySettings")}
             </h2>
             <div className="space-y-4">
               <div>
                 <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                  Current Password
+                  {t("settings.currentPassword")}
                 </label>
                 <input
                   type="password"
@@ -176,7 +178,7 @@ export const AccountSettings = () => {
               </div>
               <div>
                 <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                  New Password
+                  {t("settings.newPassword")}
                 </label>
                 <input
                   type="password"
@@ -185,14 +187,14 @@ export const AccountSettings = () => {
               </div>
               <div>
                 <label className="block mb-2 text-gray-700 dark:text-gray-300 font-medium">
-                  Confirm New Password
+                  {t("settings.confirmNewPassword")}
                 </label>
                 <input
                   type="password"
                   className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-              <Button variant="primary">Update Password</Button>
+              <Button variant="primary">{t("settings.updatePassword")}</Button>
             </div>
           </div>
         </Card>

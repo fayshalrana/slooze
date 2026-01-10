@@ -17,6 +17,7 @@ import { productService } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { useLayout } from "../contexts/LayoutContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useTranslation } from "../hooks/useTranslation";
 import { Tabs } from "../components/Tabs";
 import { ActionButton } from "../components/ActionButton";
 import { Card } from "../components/Card";
@@ -67,9 +68,13 @@ export const Products = () => {
     startDate: "",
     endDate: "",
   });
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    new Set()
+  );
   const { hasRole } = useAuth();
   const { productsLayout } = useLayout();
   const { theme } = useTheme();
+  const { t } = useTranslation();
 
   // Chart theme colors
   const isDark = theme === "dark";
@@ -149,7 +154,7 @@ export const Products = () => {
       setProducts(allProducts);
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to load products";
+        err instanceof Error ? err.message : t("products.failedToLoad");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -167,10 +172,10 @@ export const Products = () => {
     try {
       setProducts(products.filter((p) => p.id !== productToDelete.id));
       setShowDeleteModal(false);
-      toast.success(`Product "${productToDelete.name}" deleted successfully`);
+      toast.success(t("products.productDeleted"));
       setProductToDelete(null);
     } catch (err) {
-      toast.error("Failed to delete product");
+      toast.error(t("products.failedToDelete"));
     }
   };
 
@@ -202,7 +207,7 @@ export const Products = () => {
       fetchProducts();
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to update product";
+        err instanceof Error ? err.message : t("products.failedToUpdate");
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -282,12 +287,17 @@ export const Products = () => {
     return 0;
   });
 
+  // For category view, we show all categories (no pagination on categories)
+  // Products are shown when category is expanded
+  const paginatedCategories = categories;
+
+  // For card view, we still need paginated products
   const paginatedProducts = sortedProducts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
 
   // Filter handlers
   const handleFilterChange = (key: string, value: string) => {
@@ -304,13 +314,32 @@ export const Products = () => {
       endDate: "",
     });
     setCurrentPage(1);
-    toast.success("Filters cleared");
+    toast.success(t("products.filtersCleared"));
   };
 
   const handleApplyFilters = () => {
     setShowFilterModal(false);
-    toast.success("Filters applied");
+    toast.success(t("products.filtersApplied"));
   };
+
+  const handleCategoryClick = (category: string) => {
+    // Toggle category expansion
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
+  // Get products grouped by category
+  const productsByCategory = categories.reduce((acc, category) => {
+    acc[category] = filteredProducts.filter((p) => p.category === category);
+    return acc;
+  }, {} as Record<string, ProductRow[]>);
 
   const handleProductNameClick = (product: ProductRow) => {
     setSelectedProductForDetails(product);
@@ -341,7 +370,15 @@ export const Products = () => {
 
       // Add table
       autoTable(doc, {
-        head: [["Name", "Category", "Quantity", "Price", "Created Date"]],
+        head: [
+          [
+            t("products.name"),
+            t("products.category"),
+            t("products.quantity"),
+            t("products.price"),
+            t("products.createdAt"),
+          ],
+        ],
         body: tableData,
         startY: 35,
         styles: { fontSize: 9 },
@@ -350,10 +387,10 @@ export const Products = () => {
 
       // Save PDF
       doc.save(`products-report-${new Date().toISOString().split("T")[0]}.pdf`);
-      toast.success("PDF downloaded successfully");
+      toast.success(t("products.pdfDownloaded"));
       setShowDownloadMenu(false);
     } catch (err) {
-      toast.error("Failed to generate PDF");
+      toast.error(t("products.failedToGeneratePdf"));
     }
   };
 
@@ -384,9 +421,11 @@ export const Products = () => {
     <div className="flex flex-col xl:flex-row gap-4 xl:gap-6 max-w-full overflow-x-hidden">
       {/* Main Content */}
       <div className="flex-1 min-w-0 max-w-full">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">
-          Product
-        </h1>
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            {t("products.title")}
+          </h1>
+        </div>
 
         {/* Product Table or Card View */}
         <Card className="overflow-hidden">
@@ -394,8 +433,8 @@ export const Products = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-gray-700 py-4 px-3 sm:px-5">
             <Tabs
               tabs={[
-                { id: "Published", label: "Published" },
-                { id: "Draft", label: "Draft" },
+                { id: "Published", label: t("products.published") },
+                { id: "Draft", label: t("products.draft") },
               ]}
               activeTab={activeTab}
               onTabChange={(tabId) =>
@@ -404,7 +443,7 @@ export const Products = () => {
             />
             <div className="flex items-center gap-2 sm:gap-3 relative">
               <ActionButton
-                label="Filter"
+                label={t("products.filter")}
                 onClick={() => setShowFilterModal(true)}
                 icon={
                   <svg
@@ -461,7 +500,7 @@ export const Products = () => {
                           d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                         />
                       </svg>
-                      Download as PDF
+                      {t("products.downloadAsPdf")}
                     </button>
                   </div>
                 )}
@@ -473,7 +512,7 @@ export const Products = () => {
             /* Card View */
             <div className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {paginatedProducts.map((product) => (
+                {paginatedProducts.map((product: ProductRow) => (
                   <div
                     key={product.id}
                     className="bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-all"
@@ -508,9 +547,9 @@ export const Products = () => {
                           >
                             {product.name}
                           </h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <span className="text-xs mt-1 px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                             {product.category}
-                          </p>
+                          </span>
                         </div>
                       </div>
                       <input
@@ -525,7 +564,7 @@ export const Products = () => {
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          Views
+                          {t("products.views")}
                         </span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
                           {product.views.toLocaleString()}
@@ -533,7 +572,7 @@ export const Products = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          Price
+                          {t("products.price")}
                         </span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
                           ${product.price.toLocaleString()}
@@ -541,7 +580,7 @@ export const Products = () => {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          Revenue
+                          {t("products.revenue")}
                         </span>
                         <span className="text-sm font-medium text-green-600 dark:text-green-400">
                           ${product.revenue.toLocaleString()}
@@ -579,7 +618,28 @@ export const Products = () => {
                         onClick={() => handleSort("name")}
                         className="flex items-center gap-1 text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white"
                       >
-                        Product Name
+                        {t("products.productName")}
+                        <svg
+                          className="w-3 h-3 opacity-50"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                          />
+                        </svg>
+                      </button>
+                    </th>
+                    <th className="px-4 py-3 text-left">
+                      <button
+                        onClick={() => handleSort("category")}
+                        className="flex items-center gap-1 text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white"
+                      >
+                        {t("products.category")}
                         <svg
                           className="w-3 h-3 opacity-50"
                           fill="none"
@@ -600,7 +660,7 @@ export const Products = () => {
                         onClick={() => handleSort("views")}
                         className="flex items-center gap-1 text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white ml-auto"
                       >
-                        Views
+                        {t("products.views")}
                         {sortField === "views" ? (
                           sortDirection === "asc" ? (
                             <svg
@@ -653,7 +713,7 @@ export const Products = () => {
                         onClick={() => handleSort("price")}
                         className="flex items-center gap-1 text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white ml-auto"
                       >
-                        Pricing
+                        {t("products.price")}
                         {sortField === "price" ? (
                           sortDirection === "asc" ? (
                             <svg
@@ -706,7 +766,7 @@ export const Products = () => {
                         onClick={() => handleSort("revenue")}
                         className="flex items-center gap-1 text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white ml-auto"
                       >
-                        Revenue
+                        {t("products.revenue")}
                         {sortField === "revenue" ? (
                           sortDirection === "asc" ? (
                             <svg
@@ -756,7 +816,7 @@ export const Products = () => {
                     </th>
                     <th className="px-4 py-3 text-left lg:pr-[3rem]">
                       <button className="flex items-center gap-1 text-gray-700 dark:text-gray-300 font-medium hover:text-gray-900 dark:hover:text-white ml-auto">
-                        Manage
+                        {t("products.actions")}
                         <svg
                           className="w-3 h-3 opacity-50"
                           fill="none"
@@ -775,81 +835,169 @@ export const Products = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {paginatedProducts.map((product) => (
-                    <tr
-                      key={product.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                    >
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedProducts.has(product.id)}
-                            onChange={(e) =>
-                              handleSelectProduct(product.id, e.target.checked)
-                            }
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                          />
-                          <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
-                            {product.image ? (
-                              <img
-                                src={product.image}
-                                alt={product.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = "none";
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    parent.innerHTML = "📱";
-                                    parent.className =
-                                      "w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-2xl";
-                                  }
-                                }}
-                              />
-                            ) : (
-                              <span className="text-2xl">📱</span>
-                            )}
-                          </div>
-                          <span
-                            className="text-gray-900 dark:text-white font-medium cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                            onClick={() => handleProductNameClick(product)}
-                          >
-                            {product.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
-                        {product.views.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
-                        ${product.price.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
-                        ${product.revenue.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          {canEdit && (
-                            <>
-                              <button
-                                onClick={() => handleEdit(product)}
-                                className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md transition-all"
+                  {paginatedCategories.map((category) => {
+                    const isExpanded = expandedCategories.has(category);
+                    const categoryProducts = productsByCategory[category] || [];
+
+                    return (
+                      <>
+                        {/* Category Row */}
+                        <tr
+                          key={`category-${category}`}
+                          className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          onClick={() => handleCategoryClick(category)}
+                        >
+                          <td colSpan={6} className="px-4 py-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <svg
+                                  className={`w-5 h-5 text-gray-600 dark:text-gray-400 transform transition-transform ${
+                                    isExpanded ? "rotate-90" : ""
+                                  }`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                                <svg
+                                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                                  />
+                                </svg>
+                                <span className="font-bold text-gray-900 dark:text-white">
+                                  {category}
+                                </span>
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                  ({categoryProducts.length}{" "}
+                                  {t("products.title")})
+                                </span>
+                              </div>
+                              <svg
+                                className={`w-5 h-5 text-gray-600 dark:text-gray-400 transform transition-transform ${
+                                  isExpanded ? "rotate-180" : ""
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
                               >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteClick(product)}
-                                className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md transition-all"
-                              >
-                                Delete
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            </div>
+                          </td>
+                        </tr>
+                        {/* Product Rows - shown when category is expanded */}
+                        {isExpanded &&
+                          categoryProducts.map((product) => (
+                            <tr
+                              key={product.id}
+                              id={`product-${product.id}`}
+                              className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors bg-white dark:bg-[#151515]"
+                            >
+                              <td className="px-4 py-4">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedProducts.has(product.id)}
+                                    onChange={(e) =>
+                                      handleSelectProduct(
+                                        product.id,
+                                        e.target.checked
+                                      )
+                                    }
+                                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                                  />
+                                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                                    {product.image ? (
+                                      <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const target =
+                                            e.target as HTMLImageElement;
+                                          target.style.display = "none";
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            parent.innerHTML = "📱";
+                                            parent.className =
+                                              "w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-2xl";
+                                          }
+                                        }}
+                                      />
+                                    ) : (
+                                      <span className="text-2xl">📱</span>
+                                    )}
+                                  </div>
+                                  <span
+                                    className="text-gray-900 dark:text-white font-medium cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                    onClick={() =>
+                                      handleProductNameClick(product)
+                                    }
+                                  >
+                                    {product.name}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4">
+                                <span className="px-3 py-1.5 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                                  {product.category}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
+                                {product.views.toLocaleString()}
+                              </td>
+                              <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
+                                ${product.price.toLocaleString()}
+                              </td>
+                              <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
+                                ${product.revenue.toLocaleString()}
+                              </td>
+                              <td className="px-4 py-4">
+                                <div className="flex items-center gap-2">
+                                  {canEdit && (
+                                    <>
+                                      <button
+                                        onClick={() => handleEdit(product)}
+                                        className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md transition-all"
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          handleDeleteClick(product)
+                                        }
+                                        className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md transition-all"
+                                      >
+                                        Delete
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                      </>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -858,52 +1006,7 @@ export const Products = () => {
           {/* Pagination */}
           <div className="px-3 sm:px-4 py-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, sortedProducts.length)} of{" "}
-              {sortedProducts.length} products
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                &lt;
-              </button>
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`px-3 py-1.5 rounded-md transition-all ${
-                      currentPage === pageNum
-                        ? "bg-blue-500 text-white"
-                        : "border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-              <button
-                onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                &gt;
-              </button>
+              {t("products.showingCategories", { total: categories.length })}
             </div>
           </div>
         </Card>
@@ -913,12 +1016,12 @@ export const Products = () => {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white dark:bg-[#151515] rounded-xl p-6 w-full max-w-md shadow-2xl">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Edit Product
+                {t("products.editProduct")}
               </h2>
               <form onSubmit={handleEditSubmit}>
                 <div className="mb-4">
                   <label className="block mb-2 text-gray-900 dark:text-white font-medium">
-                    Name
+                    {t("products.productName")}
                   </label>
                   <input
                     type="text"
@@ -930,7 +1033,7 @@ export const Products = () => {
                 </div>
                 <div className="mb-4">
                   <label className="block mb-2 text-gray-900 dark:text-white font-medium">
-                    Category
+                    {t("products.category")}
                   </label>
                   <input
                     type="text"
@@ -943,7 +1046,7 @@ export const Products = () => {
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block mb-2 text-gray-900 dark:text-white font-medium">
-                      Quantity
+                      {t("products.quantity")}
                     </label>
                     <input
                       type="number"
@@ -956,7 +1059,7 @@ export const Products = () => {
                   </div>
                   <div>
                     <label className="block mb-2 text-gray-900 dark:text-white font-medium">
-                      Unit
+                      {t("products.unit")}
                     </label>
                     <input
                       type="text"
@@ -969,7 +1072,7 @@ export const Products = () => {
                 </div>
                 <div className="mb-4">
                   <label className="block mb-2 text-gray-900 dark:text-white font-medium">
-                    Price
+                    {t("products.price")}
                   </label>
                   <input
                     type="number"
@@ -983,7 +1086,7 @@ export const Products = () => {
                 </div>
                 <div className="mb-4">
                   <label className="block mb-2 text-gray-900 dark:text-white font-medium">
-                    Description
+                    {t("products.description")}
                   </label>
                   <textarea
                     name="description"
@@ -997,14 +1100,14 @@ export const Products = () => {
                     type="submit"
                     className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md font-semibold transition-all"
                   >
-                    Update
+                    {t("common.save")}
                   </button>
                   <button
                     type="button"
                     onClick={handleCancelEdit}
                     className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-900 dark:text-white rounded-md font-semibold transition-all"
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </button>
                 </div>
               </form>
@@ -1020,24 +1123,20 @@ export const Products = () => {
                 Delete Product
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-6">
-                Are you sure you want to delete{" "}
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  {productToDelete.name}
-                </span>
-                ? This action cannot be undone.
+                {t("products.deleteConfirm", { name: productToDelete.name })}
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={handleDeleteConfirm}
                   className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md font-semibold transition-all"
                 >
-                  Delete
+                  {t("common.delete")}
                 </button>
                 <button
                   onClick={handleDeleteCancel}
                   className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-900 dark:text-white rounded-md font-semibold transition-all"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
             </div>
@@ -1056,7 +1155,7 @@ export const Products = () => {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Product Details
+                  {t("products.productDetails")}
                 </h2>
                 <button
                   onClick={() => setShowProductDetailsModal(false)}
@@ -1108,7 +1207,7 @@ export const Products = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Product Name
+                      {t("products.productName")}
                     </label>
                     <p className="text-lg font-semibold text-gray-900 dark:text-white">
                       {selectedProductForDetails.name}
@@ -1117,7 +1216,7 @@ export const Products = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Category
+                      {t("products.category")}
                     </label>
                     <p className="text-lg text-gray-900 dark:text-white">
                       {selectedProductForDetails.category}
@@ -1126,7 +1225,7 @@ export const Products = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Quantity
+                      {t("products.quantity")}
                     </label>
                     <p className="text-lg text-gray-900 dark:text-white">
                       {selectedProductForDetails.quantity}{" "}
@@ -1136,7 +1235,7 @@ export const Products = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Price
+                      {t("products.price")}
                     </label>
                     <p className="text-lg font-semibold text-gray-900 dark:text-white">
                       $
@@ -1177,7 +1276,7 @@ export const Products = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Created Date
+                      {t("products.createdAt")}
                     </label>
                     <p className="text-lg text-gray-900 dark:text-white">
                       {new Date(
@@ -1188,7 +1287,7 @@ export const Products = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                      Updated Date
+                      {t("products.updatedAt")}
                     </label>
                     <p className="text-lg text-gray-900 dark:text-white">
                       {new Date(
@@ -1202,7 +1301,7 @@ export const Products = () => {
                 {selectedProductForDetails.description && (
                   <div>
                     <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                      Description
+                      {t("products.description")}
                     </label>
                     <p className="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                       {selectedProductForDetails.description}
@@ -1225,13 +1324,13 @@ export const Products = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Filter Products
+                {t("products.filter")} {t("products.title")}
               </h2>
               <div className="space-y-4">
                 {/* Category Filter */}
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Category
+                    {t("products.category")}
                   </label>
                   <select
                     value={filters.category}
@@ -1240,7 +1339,7 @@ export const Products = () => {
                     }
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">All Categories</option>
+                    <option value="">{t("products.allCategories")}</option>
                     {categories.map((category) => (
                       <option key={category} value={category}>
                         {category}
@@ -1253,7 +1352,7 @@ export const Products = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Min Price
+                      {t("products.minPrice")}
                     </label>
                     <input
                       type="number"
@@ -1269,7 +1368,7 @@ export const Products = () => {
                   </div>
                   <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Max Price
+                      {t("products.maxPrice")}
                     </label>
                     <input
                       type="number"
@@ -1277,7 +1376,7 @@ export const Products = () => {
                       onChange={(e) =>
                         handleFilterChange("maxPrice", e.target.value)
                       }
-                      placeholder="Any"
+                      placeholder={t("products.any")}
                       min="0"
                       step="0.01"
                       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -1289,7 +1388,7 @@ export const Products = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      Start Date
+                      {t("products.startDate")}
                     </label>
                     <input
                       type="date"
@@ -1302,7 +1401,7 @@ export const Products = () => {
                   </div>
                   <div>
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                      End Date
+                      {t("products.endDate")}
                     </label>
                     <input
                       type="date"
@@ -1323,13 +1422,13 @@ export const Products = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-900 dark:text-white rounded-md font-semibold transition-all"
                 >
-                  Clear
+                  {t("common.reset")}
                 </button>
                 <button
                   onClick={handleApplyFilters}
                   className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md font-semibold transition-all"
                 >
-                  Apply Filters
+                  {t("products.applyFilters")}
                 </button>
               </div>
             </div>
@@ -1424,7 +1523,7 @@ export const Products = () => {
 
           <Card className="mt-4">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Total Sales
+              {t("products.totalSales")}
             </h3>
 
             <div className="mb-4">
@@ -1433,7 +1532,7 @@ export const Products = () => {
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  trend title
+                  {t("dashboard.trendTitle")}
                 </span>
                 <svg
                   className="w-4 h-4 text-green-600 dark:text-green-400"
@@ -1497,7 +1596,7 @@ export const Products = () => {
 
           <Card className="mt-4">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Total Earnings
+              {t("products.totalEarnings")}
             </h3>
 
             <div className="mb-4">
@@ -1506,7 +1605,7 @@ export const Products = () => {
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  trend title
+                  {t("dashboard.trendTitle")}
                 </span>
                 <svg
                   className="w-4 h-4 text-green-600 dark:text-green-400"

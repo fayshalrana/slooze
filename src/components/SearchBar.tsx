@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTranslation } from "../hooks/useTranslation";
 import { productService } from "../services/api";
 import type { Product } from "../types";
 
@@ -19,10 +20,11 @@ interface SearchSuggestion {
 }
 
 export const SearchBar = ({
-  placeholder = "Search",
+  placeholder,
   onSearch,
   className = "",
 }: SearchBarProps) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -31,6 +33,8 @@ export const SearchBar = ({
   const navigate = useNavigate();
   const { hasRole } = useAuth();
   const searchRef = useRef<HTMLDivElement>(null);
+  
+  const searchPlaceholder = placeholder || t("searchBar.placeholder");
 
   // Available pages/settings for search
   const availablePages: SearchSuggestion[] = [
@@ -39,7 +43,7 @@ export const SearchBar = ({
           {
             id: "dashboard",
             type: "page" as const,
-            label: "Dashboard",
+            label: t("searchBar.dashboard"),
             path: "/dashboard",
             icon: (
               <svg
@@ -62,7 +66,7 @@ export const SearchBar = ({
     {
       id: "products",
       type: "page" as const,
-      label: "Products",
+      label: t("searchBar.products"),
       path: "/products",
       icon: (
         <svg
@@ -83,7 +87,7 @@ export const SearchBar = ({
     {
       id: "add-product",
       type: "page" as const,
-      label: "Add Product",
+      label: t("searchBar.addProduct"),
       path: "/products/add",
       icon: (
         <svg
@@ -104,7 +108,7 @@ export const SearchBar = ({
     {
       id: "notifications",
       type: "page" as const,
-      label: "Notifications",
+      label: t("searchBar.notifications"),
       path: "/notifications",
       icon: (
         <svg
@@ -125,7 +129,7 @@ export const SearchBar = ({
     {
       id: "account-settings",
       type: "page" as const,
-      label: "Account Settings",
+      label: t("searchBar.accountSettings"),
       path: "/settings/profile",
       icon: (
         <svg
@@ -266,7 +270,7 @@ export const SearchBar = ({
       <button
         onClick={() => setIsModalOpen(true)}
         className={`lg:hidden w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-all ${className}`}
-        aria-label="Search"
+        aria-label={t("searchBar.search")}
       >
         <svg
           className="w-5 h-5 text-gray-600 dark:text-gray-400"
@@ -295,7 +299,7 @@ export const SearchBar = ({
           <div className="flex-1 relative">
             <input
               type="text"
-              placeholder={placeholder}
+              placeholder={searchPlaceholder}
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -335,7 +339,7 @@ export const SearchBar = ({
                         {suggestion.label}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {suggestion.type === "page" ? "Page" : "Product"}
+                        {suggestion.type === "page" ? t("common.page") : t("products.title")}
                       </div>
                     </div>
                   </button>
@@ -347,7 +351,7 @@ export const SearchBar = ({
             type="submit"
             className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-md transition-all font-medium"
           >
-            Search
+            {t("searchBar.search")}
           </button>
         </form>
       </div>
@@ -376,7 +380,7 @@ export const SearchBar = ({
                   <div className="flex-1 relative">
                     <input
                       type="text"
-                      placeholder={placeholder}
+                      placeholder={searchPlaceholder}
                       value={query}
                       onChange={(e) => {
                         setQuery(e.target.value);
@@ -425,7 +429,7 @@ export const SearchBar = ({
                             {suggestion.label}
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {suggestion.type === "page" ? "Page" : "Product"}
+                            {suggestion.type === "page" ? t("common.page") : t("products.title")}
                           </div>
                         </div>
                       </button>

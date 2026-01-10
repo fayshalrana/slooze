@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useTranslation } from "../hooks/useTranslation";
 import { useLayout } from "../contexts/LayoutContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import { SearchBar } from "./SearchBar";
@@ -15,6 +17,8 @@ interface HeaderProps {
 export const Header = ({ onMenuClick }: HeaderProps) => {
   const { user, logout, hasRole } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { language, toggleLanguage } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -128,7 +132,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
               />
             </svg>
           }
-          ariaLabel="Toggle Layout"
+          ariaLabel={t("header.toggleLayout")}
         />
         <div className="relative">
           <IconButton
@@ -150,13 +154,13 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 />
               </svg>
             }
-            ariaLabel="Notifications"
+            ariaLabel={t("header.notifications")}
           />
           {notificationOpen && (
             <div className="notification-dropdown fixed sm:absolute right-2 sm:right-0 top-[4.5rem] sm:top-auto sm:mt-2 w-[calc(100vw-1rem)] sm:w-80 max-w-sm bg-white dark:bg-[#151515] rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
               <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Notifications
+                  {t("header.notifications")}
                 </h3>
                 <button
                   onClick={() => {
@@ -165,7 +169,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                   }}
                   className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
                 >
-                  View All
+                  {t("header.viewAll")}
                 </button>
               </div>
               <div className="divide-y divide-gray-200 dark:divide-gray-700 max-h-80 overflow-y-auto">
@@ -256,12 +260,19 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                     const diffInSeconds = Math.floor(
                       (now.getTime() - time.getTime()) / 1000
                     );
-                    if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+                    if (diffInSeconds < 60)
+                      return t("time.secondsAgo", { seconds: diffInSeconds });
                     if (diffInSeconds < 3600)
-                      return `${Math.floor(diffInSeconds / 60)}m ago`;
+                      return t("time.minutesAgo", {
+                        minutes: Math.floor(diffInSeconds / 60),
+                      });
                     if (diffInSeconds < 86400)
-                      return `${Math.floor(diffInSeconds / 3600)}h ago`;
-                    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+                      return t("time.hoursAgo", {
+                        hours: Math.floor(diffInSeconds / 3600),
+                      });
+                    return t("time.daysAgo", {
+                      days: Math.floor(diffInSeconds / 86400),
+                    });
                   };
                   return (
                     <div
@@ -304,7 +315,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                 })}
                 {notifications.length === 0 && (
                   <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                    No notifications
+                    {t("header.noNotifications")}
                   </div>
                 )}
               </div>
@@ -314,7 +325,30 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
         <IconButton
           onClick={toggleTheme}
           icon={<>{theme === "light" ? "🌙" : "☀️"}</>}
-          ariaLabel="Toggle theme"
+          ariaLabel={t("header.toggleTheme")}
+        />
+        <IconButton
+          onClick={toggleLanguage}
+          icon={
+            <svg
+              className="w-5 h-5 text-gray-600 dark:text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
+              />
+            </svg>
+          }
+          ariaLabel={
+            language === "en"
+              ? t("header.toggleLanguage")
+              : t("header.toggleLanguage")
+          }
         />
         <div className="relative">
           <button
@@ -380,7 +414,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                     />
                   </svg>
-                  Profile
+                  {t("header.profile")}
                 </button>
                 <button
                   onClick={handleLogout}
@@ -399,7 +433,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
                       d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                     />
                   </svg>
-                  Logout
+                  {t("header.logout")}
                 </button>
               </div>
             </div>

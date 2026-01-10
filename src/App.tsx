@@ -2,8 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { LayoutProvider } from './contexts/LayoutContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { useTranslation } from './hooks/useTranslation';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { DashboardLayout } from './components/DashboardLayout';
 import { Login } from './pages/Login';
@@ -16,11 +18,12 @@ import { NotFound } from './pages/NotFound';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
+  const { t } = useTranslation();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        <div className="text-gray-600 dark:text-gray-400">{t("common.loading")}</div>
       </div>
     );
   }
@@ -90,11 +93,12 @@ const AppRoutes = () => {
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <NotificationProvider>
-          <LayoutProvider>
-            <BrowserRouter>
-              <AppRoutes />
+      <LanguageProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <LayoutProvider>
+              <BrowserRouter>
+                <AppRoutes />
               <Toaster
                 position="top-center"
                 toastOptions={{
@@ -121,10 +125,11 @@ function App() {
                   },
                 }}
               />
-            </BrowserRouter>
-          </LayoutProvider>
-        </NotificationProvider>
-      </AuthProvider>
+              </BrowserRouter>
+            </LayoutProvider>
+          </NotificationProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

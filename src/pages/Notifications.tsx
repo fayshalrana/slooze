@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNotifications } from "../contexts/NotificationContext";
+import { useTranslation } from "../hooks/useTranslation";
 import { Card } from "../components/Card";
 import { Button } from "../components/Button";
 
@@ -45,19 +46,20 @@ const getNotificationBgColor = (type: string) => {
   }
 };
 
-const formatTimeAgo = (timestamp: string) => {
+const formatTimeAgo = (timestamp: string, t: (key: string, params?: Record<string, string | number>) => string) => {
   const now = new Date();
   const time = new Date(timestamp);
   const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-  return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  if (diffInSeconds < 60) return t("notifications.secondsAgo", { seconds: diffInSeconds });
+  if (diffInSeconds < 3600) return t("notifications.minutesAgo", { minutes: Math.floor(diffInSeconds / 60) });
+  if (diffInSeconds < 86400) return t("notifications.hoursAgo", { hours: Math.floor(diffInSeconds / 3600) });
+  return t("notifications.daysAgo", { days: Math.floor(diffInSeconds / 86400) });
 };
 
 export const Notifications = () => {
   const { notifications, markAsRead, markAsUnread, markAllAsRead, unreadCount } = useNotifications();
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<"all" | "unread" | "read">("all");
 
   const filteredNotifications = notifications.filter((n) => {
@@ -75,16 +77,18 @@ export const Notifications = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-            Notifications
+            {t("notifications.title")}
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
+            {unreadCount === 1 
+              ? t("notifications.unreadNotification", { count: unreadCount })
+              : t("notifications.unreadNotifications", { count: unreadCount })}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {unreadCount > 0 && (
             <Button onClick={markAllAsRead} variant="secondary">
-              Mark All as Read
+              {t("notifications.markAllAsRead")}
             </Button>
           )}
         </div>
@@ -100,7 +104,7 @@ export const Notifications = () => {
               : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
-          All ({notifications.length})
+          {t("notifications.all")} ({notifications.length})
         </button>
         <button
           onClick={() => setFilter("unread")}
@@ -110,7 +114,7 @@ export const Notifications = () => {
               : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
-          Unread ({unreadCount})
+          {t("notifications.unread")} ({unreadCount})
         </button>
         <button
           onClick={() => setFilter("read")}
@@ -120,7 +124,7 @@ export const Notifications = () => {
               : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
-          Read ({notifications.length - unreadCount})
+          {t("notifications.read")} ({notifications.length - unreadCount})
         </button>
       </div>
 
@@ -129,7 +133,7 @@ export const Notifications = () => {
         {sortedNotifications.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400">
-              No {filter === "all" ? "" : filter} notifications found
+              {t("notifications.noNotifications")}
             </p>
           </div>
         ) : (
@@ -166,7 +170,7 @@ export const Notifications = () => {
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-400 dark:text-gray-500">
-                          {formatTimeAgo(notification.timestamp)}
+                          {formatTimeAgo(notification.timestamp, t)}
                         </p>
                       </div>
                       <button
@@ -177,7 +181,7 @@ export const Notifications = () => {
                         }
                         className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors flex-shrink-0"
                       >
-                        {notification.read ? "Mark as Unread" : "Mark as Read"}
+                        {notification.read ? t("notifications.markAsRead") : t("notifications.markAsRead")}
                       </button>
                     </div>
                   </div>

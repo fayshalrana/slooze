@@ -18,6 +18,7 @@ import { KPICard } from "../components/KPICard";
 import { Card } from "../components/Card";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLayout } from "../contexts/LayoutContext";
+import { useTranslation } from "../hooks/useTranslation";
 import type { DashboardStats } from "../types";
 import {
   overviewData,
@@ -37,6 +38,7 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { dashboardLayout } = useLayout();
+  const { t } = useTranslation();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -84,7 +86,7 @@ export const Dashboard = () => {
         const data = await dashboardService.getStats();
         setStats(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to load dashboard data";
+        const errorMessage = err instanceof Error ? err.message : t("dashboard.failedToLoad");
         setError(errorMessage);
         toast.error(errorMessage);
       } finally {
@@ -98,7 +100,7 @@ export const Dashboard = () => {
   if (loading) {
     return (
       <div className="text-center py-12 text-gray-600 dark:text-gray-400 text-lg">
-        Loading dashboard...
+        {t("dashboard.loading")}
       </div>
     );
   }
@@ -122,13 +124,13 @@ export const Dashboard = () => {
     <div className={`${dashboardLayout === "grid" ? "p-2 sm:p-4" : "space-y-4 sm:space-y-6"} max-w-full overflow-x-hidden`}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-          Dashboard
+          {t("dashboard.title")}
         </h1>
         <Button
           onClick={() => navigate("/products/add")}
           icon={<span className="text-lg">+</span>}
         >
-          Add New Product
+          {t("dashboard.addNewProduct")}
         </Button>
       </div>
 
@@ -138,29 +140,29 @@ export const Dashboard = () => {
           {/* KPI Cards in Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <KPICard
-              title="Total Earning"
+              title={t("dashboard.totalEarning")}
               value={`$${totalEarning.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
               })}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="💰"
             />
             <KPICard
-              title="Views"
+              title={t("dashboard.views")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="👁️"
             />
             <KPICard
-              title="Total Sales"
+              title={t("dashboard.totalSales")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="📊"
             />
             <KPICard
-              title="Subscriptions"
+              title={t("dashboard.subscriptions")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="📈"
             />
           </div>
@@ -169,7 +171,7 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card className="lg:col-span-2">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                Overview
+                {t("dashboard.overview")}
               </h2>
               <ResponsiveContainer key={theme} width="100%" height={400}>
                 <BarChart data={overviewDataWithBackground}>
@@ -236,10 +238,10 @@ export const Dashboard = () => {
 
             <Card>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Recent Sales
+                {t("dashboard.recentSales")}
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                You made 350 sales this month
+                {t("dashboard.salesThisMonth", { count: 350 })}
               </p>
               <div className="space-y-3">
                 {recentSales.map((sale) => (
@@ -273,7 +275,7 @@ export const Dashboard = () => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Total Earning
+                    {t("dashboard.totalEarning")}
                   </h3>
                   <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">
                     ${" "}
@@ -282,11 +284,11 @@ export const Dashboard = () => {
                     })}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
-                    trend title {trendPercentage}%
+                    {t("dashboard.trendTitle")} {trendPercentage}%
                   </p>
                 </div>
                 <select className="px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white">
-                  <option>This Week</option>
+                  <option>{t("dashboard.thisWeek")}</option>
                 </select>
               </div>
               <ResponsiveContainer key={theme} width="100%" height={150}>
@@ -341,11 +343,11 @@ export const Dashboard = () => {
                     })}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
-                    trend title {trendPercentage}%
+                    {t("dashboard.trendTitle")} {trendPercentage}%
                   </p>
                 </div>
                 <select className="px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white">
-                  <option>This Week</option>
+                  <option>{t("dashboard.thisWeek")}</option>
                 </select>
               </div>
               <ResponsiveContainer key={theme} width="100%" height={150}>
@@ -758,29 +760,29 @@ export const Dashboard = () => {
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             <KPICard
-              title="Total Earning"
+              title={t("dashboard.totalEarning")}
               value={`$${totalEarning.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
               })}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="💰"
             />
             <KPICard
-              title="Views"
+              title={t("dashboard.views")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="👁️"
             />
             <KPICard
-              title="Total Sales"
+              title={t("dashboard.totalSales")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="📊"
             />
             <KPICard
-              title="Subscriptions"
+              title={t("dashboard.subscriptions")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: "trend title", percentage: trendPercentage }}
+              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
               icon="📈"
             />
           </div>
@@ -933,11 +935,11 @@ export const Dashboard = () => {
                       })}
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                      trend title {trendPercentage}%
+                      {t("dashboard.trendTitle")} {trendPercentage}%
                     </p>
                   </div>
                   <select className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white">
-                    <option>This Week</option>
+                    <option>{t("dashboard.thisWeek")}</option>
                   </select>
                 </div>
                 <ResponsiveContainer key={theme} width="100%" height={200}>
@@ -989,11 +991,11 @@ export const Dashboard = () => {
                       })}
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                      trend title {trendPercentage}%
+                      {t("dashboard.trendTitle")} {trendPercentage}%
                     </p>
                   </div>
                   <select className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white">
-                    <option>This Week</option>
+                    <option>{t("dashboard.thisWeek")}</option>
                   </select>
                 </div>
                 <ResponsiveContainer key={theme} width="100%" height={200}>
@@ -1069,7 +1071,7 @@ export const Dashboard = () => {
                       + {totalEarning.toLocaleString()}
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                      trend title {trendPercentage}%
+                      {t("dashboard.trendTitle")} {trendPercentage}%
                     </p>
                   </div>
                 </div>
@@ -1115,7 +1117,7 @@ export const Dashboard = () => {
                       })}
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                      trend title {trendPercentage}%
+                      {t("dashboard.trendTitle")} {trendPercentage}%
                     </p>
                   </div>
                 </div>
@@ -1206,13 +1208,13 @@ export const Dashboard = () => {
               <div className="bg-white dark:bg-[#151515] rounded-xl p-6 shadow-sm">
                 <div className="mb-4">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Total Earning
+                    {t("dashboard.totalEarning")}
                   </h3>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     + {totalEarning.toLocaleString()}
                   </p>
                   <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                    trend title {trendPercentage}%
+                    {t("dashboard.trendTitle")} {trendPercentage}%
                   </p>
                 </div>
                 <ResponsiveContainer key={theme} width="100%" height={150}>
@@ -1265,7 +1267,7 @@ export const Dashboard = () => {
                     + {totalEarning.toLocaleString()}
                   </p>
                   <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                    trend title {trendPercentage}%
+                    {t("dashboard.trendTitle")} {trendPercentage}%
                   </p>
                 </div>
                 <ResponsiveContainer key={theme} width="100%" height={150}>
@@ -1318,7 +1320,7 @@ export const Dashboard = () => {
                     + {totalEarning.toLocaleString()}
                   </p>
                   <p className="text-sm text-green-600 dark:text-green-400 font-medium mt-1">
-                    trend title {trendPercentage}%
+                    {t("dashboard.trendTitle")} {trendPercentage}%
                   </p>
                 </div>
                 <ResponsiveContainer key={theme} width="100%" height={150}>

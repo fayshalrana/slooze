@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "../hooks/useTranslation";
 
 export const NotFound = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#e9eef4] dark:bg-black">
@@ -11,11 +13,10 @@ export const NotFound = () => {
             404
           </h1>
           <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-            Page Not Found
+            {t("notFound.pageNotFound")}
           </h2>
           <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-8">
-            The page you are looking for might have been removed, had its name
-            changed, or is temporarily unavailable.
+            {t("notFound.message")}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -23,13 +24,13 @@ export const NotFound = () => {
             onClick={() => navigate(-1)}
             className="px-6 py-3 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all font-medium"
           >
-            Go Back
+            {t("notFound.goBack")}
           </button>
           <button
             onClick={() => navigate("/products")}
             className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all"
           >
-            Go to Products
+            {t("notFound.goToProducts")}
           </button>
         </div>
       </div>

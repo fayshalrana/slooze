@@ -1,4 +1,8 @@
+import { useTranslation } from "../hooks/useTranslation";
+
 export const Footer = () => {
+  const { t } = useTranslation();
+  
   return (
     <footer className="bg-white dark:bg-[#151515] border-t border-gray-200 dark:border-gray-700">
       <div className="px-6 py-12">
@@ -14,9 +18,7 @@ export const Footer = () => {
               </span>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md">
-              Ease of shopping is our main focus. With powerful search features
-              and customizable filters, you can easily find the products you are
-              looking for.
+              {t("footer.brandDescription")}
             </p>
             <div className="flex items-center gap-4 mb-6">
               <a
@@ -74,12 +76,12 @@ export const Footer = () => {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Subscribe to Newsletter
+                {t("footer.subscribeToNewsletter")}
               </h3>
               <div className="relative">
                 <input
                   type="email"
-                  placeholder="Enter Your Email Here"
+                  placeholder={t("footer.enterYourEmail")}
                   className="w-full px-4 py-3 pl-12 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 <svg
@@ -102,7 +104,7 @@ export const Footer = () => {
           {/* Navigation Columns */}
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Get Started
+              {t("footer.getStarted")}
             </h3>
             <ul className="space-y-3">
               <li>
@@ -110,7 +112,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  Service
+                  {t("footer.service")}
                 </a>
               </li>
               <li>
@@ -118,7 +120,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  Contact Us
+                  {t("footer.contactUs")}
                 </a>
               </li>
               <li>
@@ -126,7 +128,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  Affiliate Program
+                  {t("footer.affiliateProgram")}
                 </a>
               </li>
               <li>
@@ -134,7 +136,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  About Us
+                  {t("footer.aboutUs")}
                 </a>
               </li>
             </ul>
@@ -142,7 +144,7 @@ export const Footer = () => {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Get Started
+              {t("footer.getStarted")}
             </h3>
             <ul className="space-y-3">
               <li>
@@ -150,7 +152,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  Dashboard
+                  {t("footer.dashboard")}
                 </a>
               </li>
               <li>
@@ -158,7 +160,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  Platform
+                  {t("footer.platform")}
                 </a>
               </li>
               <li>
@@ -166,7 +168,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  Workout Library
+                  {t("footer.workoutLibrary")}
                 </a>
               </li>
               <li>
@@ -174,7 +176,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  App Design
+                  {t("footer.appDesign")}
                 </a>
               </li>
             </ul>
@@ -182,7 +184,7 @@ export const Footer = () => {
 
           <div>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Get Started
+              {t("footer.getStarted")}
             </h3>
             <ul className="space-y-3">
               <li>
@@ -190,7 +192,7 @@ export const Footer = () => {
                   href="#"
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
-                  About Us
+                  {t("footer.aboutUs")}
                 </a>
               </li>
             </ul>
@@ -201,28 +203,28 @@ export const Footer = () => {
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              2024 MaxFit
+              {t("footer.copyright")}
             </p>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
               <a
                 href="#"
                 className="hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                Twitter
+                {t("footer.twitter")}
               </a>
               <span>-</span>
               <a
                 href="#"
                 className="hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                Instagram
+                {t("footer.instagram")}
               </a>
               <span>-</span>
               <a
                 href="#"
                 className="hover:text-gray-900 dark:hover:text-white transition-colors"
               >
-                Facebook
+                {t("footer.facebook")}
               </a>
             </div>
           </div>
