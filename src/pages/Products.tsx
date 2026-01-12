@@ -1325,7 +1325,9 @@ export const Products = () => {
                       {t("products.description")}
                     </label>
                     <p className="text-base text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                      {selectedProductForDetails.description}
+                      {translateDescription(
+                        selectedProductForDetails.description
+                      )}
                     </p>
                   </div>
                 )}
