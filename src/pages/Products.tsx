@@ -76,6 +76,26 @@ export const Products = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
 
+  // Helper functions to translate product data
+  const translateProductName = (name: string): string => {
+    const key = `products.productNames.${name}`;
+    const translated = t(key);
+    return translated !== key ? translated : name;
+  };
+
+  const translateCategory = (category: string): string => {
+    const key = `products.categoryNames.${category}`;
+    const translated = t(key);
+    return translated !== key ? translated : category;
+  };
+
+  const translateDescription = (description: string): string => {
+    if (!description) return description;
+    const key = `products.descriptionTranslations.${description}`;
+    const translated = t(key);
+    return translated !== key ? translated : description;
+  };
+
   // Chart theme colors
   const isDark = theme === "dark";
   const axisColor = isDark ? "#9ca3af" : "#6b7280";
@@ -321,12 +341,15 @@ export const Products = () => {
   };
 
   const handleCategoryClick = (category: string) => {
-    // Toggle category expansion
+    // Accordion behavior: close other categories when one opens
     setExpandedCategories((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(category)) {
+        // If clicking an open category, close it
         newSet.delete(category);
       } else {
+        // If clicking a closed category, close all others and open this one
+        newSet.clear();
         newSet.add(category);
       }
       return newSet;
@@ -416,7 +439,7 @@ export const Products = () => {
   }
 
   return (
-    <div className="flex flex-col xl:flex-row gap-4 xl:gap-6 max-w-full overflow-x-hidden">
+    <div className="flex flex-col items-start xl:flex-row gap-4 xl:gap-6 max-w-full overflow-x-hidden">
       {/* Main Content */}
       <div className="flex-1 min-w-0 max-w-full">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -461,7 +484,7 @@ export const Products = () => {
               />
               <div className="relative download-menu-container">
                 <ActionButton
-                  label="Download"
+                  label={t("products.download")}
                   onClick={() => setShowDownloadMenu(!showDownloadMenu)}
                   icon={
                     <svg
@@ -543,10 +566,10 @@ export const Products = () => {
                             className="text-sm font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             onClick={() => handleProductNameClick(product)}
                           >
-                            {product.name}
+                            {translateProductName(product.name)}
                           </h3>
                           <span className="text-xs mt-1 px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                            {product.category}
+                            {translateCategory(product.category)}
                           </span>
                         </div>
                       </div>
@@ -591,13 +614,13 @@ export const Products = () => {
                           onClick={() => handleEdit(product)}
                           className="flex-1 px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-md transition-all"
                         >
-                          Edit
+                          {t("common.edit")}
                         </button>
                         <button
                           onClick={() => handleDeleteClick(product)}
                           className="flex-1 px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs rounded-md transition-all"
                         >
-                          Delete
+                          {t("common.delete")}
                         </button>
                       </div>
                     )}
@@ -877,7 +900,7 @@ export const Products = () => {
                                   />
                                 </svg>
                                 <span className="font-bold text-gray-900 dark:text-white">
-                                  {category}
+                                  {translateCategory(category)}
                                 </span>
                                 <span className="text-sm text-gray-500 dark:text-gray-400">
                                   ({categoryProducts.length}{" "}
@@ -951,13 +974,13 @@ export const Products = () => {
                                       handleProductNameClick(product)
                                     }
                                   >
-                                    {product.name}
+                                    {translateProductName(product.name)}
                                   </span>
                                 </div>
                               </td>
                               <td className="px-4 py-4">
                                 <span className="px-3 py-1.5 rounded-md text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                                  {product.category}
+                                  {translateCategory(product.category)}
                                 </span>
                               </td>
                               <td className="px-4 py-4 text-gray-700 dark:text-gray-300">
@@ -977,7 +1000,7 @@ export const Products = () => {
                                         onClick={() => handleEdit(product)}
                                         className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md transition-all"
                                       >
-                                        Edit
+                                        {t("common.edit")}
                                       </button>
                                       <button
                                         onClick={() =>
@@ -985,7 +1008,7 @@ export const Products = () => {
                                         }
                                         className="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md transition-all"
                                       >
-                                        Delete
+                                        {t("common.delete")}
                                       </button>
                                     </>
                                   )}
@@ -1118,7 +1141,7 @@ export const Products = () => {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
             <div className="bg-white dark:bg-[#151515] rounded-xl p-6 w-full max-w-md shadow-2xl">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Delete Product
+                {t("products.deleteProduct")}
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-6">
                 {t("products.deleteConfirm", { name: productToDelete.name })}
@@ -1208,7 +1231,7 @@ export const Products = () => {
                       {t("products.productName")}
                     </label>
                     <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {selectedProductForDetails.name}
+                      {translateProductName(selectedProductForDetails.name)}
                     </p>
                   </div>
 
@@ -1217,7 +1240,7 @@ export const Products = () => {
                       {t("products.category")}
                     </label>
                     <p className="text-lg text-gray-900 dark:text-white">
-                      {selectedProductForDetails.category}
+                      {translateCategory(selectedProductForDetails.category)}
                     </p>
                   </div>
 
@@ -1340,7 +1363,7 @@ export const Products = () => {
                     <option value="">{t("products.allCategories")}</option>
                     {categories.map((category) => (
                       <option key={category} value={category}>
-                        {category}
+                        {translateCategory(category)}
                       </option>
                     ))}
                   </select>
@@ -1444,11 +1467,11 @@ export const Products = () => {
             className="mb-4 bg-purple-500 hover:bg-purple-600 w-full xl:max-w-max xl:ml-auto justify-center"
             icon={<span className="text-lg">+</span>}
           >
-            Add New Product
+            {t("dashboard.addNewProduct")}
           </Button>
           <Card>
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Total Views
+              {t("products.totalViews")}
             </h3>
 
             <div className="mb-4">
@@ -1457,7 +1480,7 @@ export const Products = () => {
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                  trend title
+                  {t("products.trendTitle")}
                 </span>
                 <svg
                   className="w-4 h-4 text-green-600 dark:text-green-400"

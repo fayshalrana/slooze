@@ -77,7 +77,8 @@ export const AddProduct = () => {
       toast.success(t("addProduct.productCreated", { name: productData.name }));
       navigate("/products");
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : t("addProduct.failedToCreate");
+      const errorMessage =
+        err instanceof Error ? err.message : t("addProduct.failedToCreate");
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -97,7 +98,7 @@ export const AddProduct = () => {
     <div className={isMinimal ? "max-w-2xl mx-auto space-y-4" : "space-y-6"}>
       {/* Header */}
       <div
-        className={`flex items-center justify-between ${
+        className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${
           isMinimal ? "mb-4" : ""
         }`}
       >
@@ -110,15 +111,17 @@ export const AddProduct = () => {
             {t("addProduct.title")}
           </h1>
           {!isMinimal && (
-            <p className="text-gray-600 dark:text-gray-400">{t("addProduct.addNewProduct")}</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              {t("addProduct.addNewProduct")}
+            </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <button
             onClick={handleDiscard}
             className={`${
               isMinimal ? "px-3 py-1.5 text-sm" : "px-4 py-2"
-            } bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all`}
+            } bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all w-full sm:w-auto`}
           >
             {isMinimal ? t("common.cancel") : t("addProduct.discardChange")}
           </button>
@@ -128,7 +131,7 @@ export const AddProduct = () => {
             disabled={loading}
             className={`${
               isMinimal ? "px-3 py-1.5 text-sm" : "px-4 py-2"
-            } bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+            } bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto`}
           >
             {loading ? t("addProduct.saving") : t("common.save")}
           </button>
@@ -339,7 +342,9 @@ export const AddProduct = () => {
                         required
                         className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                       >
-                        <option value="">{t("addProduct.productCategory")}</option>
+                        <option value="">
+                          {t("addProduct.productCategory")}
+                        </option>
                         <option value="Grains">Grains</option>
                         <option value="Sweeteners">Sweeteners</option>
                         <option value="Beverages">Beverages</option>
@@ -435,7 +440,9 @@ export const AddProduct = () => {
                         name="discountCategory"
                         className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                       >
-                        <option value="">{t("addProduct.discountCategory")}</option>
+                        <option value="">
+                          {t("addProduct.discountCategory")}
+                        </option>
                         <option value="Percentage">Percentage</option>
                         <option value="Fixed">Fixed Amount</option>
                       </select>

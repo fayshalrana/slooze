@@ -86,7 +86,8 @@ export const Dashboard = () => {
         const data = await dashboardService.getStats();
         setStats(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : t("dashboard.failedToLoad");
+        const errorMessage =
+          err instanceof Error ? err.message : t("dashboard.failedToLoad");
         setError(errorMessage);
         toast.error(errorMessage);
       } finally {
@@ -121,7 +122,11 @@ export const Dashboard = () => {
   const trendPercentage = 70.5;
 
   return (
-    <div className={`${dashboardLayout === "grid" ? "p-2 sm:p-4" : "space-y-4 sm:space-y-6"} max-w-full overflow-x-hidden`}>
+    <div
+      className={`${
+        dashboardLayout === "grid" ? "p-2 sm:p-4" : "space-y-4 sm:space-y-6"
+      } max-w-full overflow-x-hidden`}
+    >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
           {t("dashboard.title")}
@@ -144,25 +149,37 @@ export const Dashboard = () => {
               value={`$${totalEarning.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
               })}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="💰"
             />
             <KPICard
               title={t("dashboard.views")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="👁️"
             />
             <KPICard
               title={t("dashboard.totalSales")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="📊"
             />
             <KPICard
               title={t("dashboard.subscriptions")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="📈"
             />
           </div>
@@ -334,7 +351,7 @@ export const Dashboard = () => {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                    Weekly Stats
+                    {t("dashboard.weeklyStats")}
                   </h3>
                   <p className="text-xl font-bold text-gray-900 dark:text-white mt-1">
                     ${" "}
@@ -422,13 +439,13 @@ export const Dashboard = () => {
             <Card className="p-4">
               <div className="mb-3">
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  Subscriptions
+                  {t("dashboard.subscriptions")}
                 </h3>
                 <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
                   + {totalEarning.toLocaleString()}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
-                  trend title {trendPercentage}%
+                  {t("dashboard.trendTitle")} {trendPercentage}%
                 </p>
               </div>
               <ResponsiveContainer key={theme} width="100%" height={120}>
@@ -466,7 +483,7 @@ export const Dashboard = () => {
             <Card className="p-4">
               <div className="mb-3">
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  Total Earning
+                  {t("dashboard.totalEarning")}
                 </h3>
                 <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
                   ${" "}
@@ -475,7 +492,7 @@ export const Dashboard = () => {
                   })}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
-                  trend title {trendPercentage}%
+                  {t("dashboard.trendTitle")} {trendPercentage}%
                 </p>
               </div>
               <ResponsiveContainer key={theme} width="100%" height={120}>
@@ -539,10 +556,10 @@ export const Dashboard = () => {
 
             <Card className="p-4">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
-                Subscriptions Performers
+                {t("dashboard.subscriptionsPerformers")}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Follower This Years
+                {t("dashboard.followerThisYears")}
               </p>
               <div className="flex items-center gap-3 mb-3">
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -621,10 +638,10 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <Card className="p-4">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
-                Top Sales Product
+                {t("dashboard.topSalesProduct")}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Manage your payments.
+                {t("dashboard.manageYourPayments")}
               </p>
               <div className="space-y-2 mb-3">
                 {topProducts.slice(0, 3).map((product) => (
@@ -649,20 +666,20 @@ export const Dashboard = () => {
               </div>
               <div className="flex gap-2">
                 <button className="flex-1 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-xs">
-                  Previous
+                  {t("dashboard.previous")}
                 </button>
                 <button className="flex-1 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-xs">
-                  Next
+                  {t("dashboard.next")}
                 </button>
               </div>
             </Card>
 
             <Card className="p-4">
               <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">
-                Payment History
+                {t("dashboard.paymentHistory")}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Manage your payments.
+                {t("dashboard.manageYourPayments")}
               </p>
               <div className="space-y-2 mb-3">
                 {paymentHistory.slice(0, 3).map((payment) => (
@@ -694,10 +711,10 @@ export const Dashboard = () => {
               </div>
               <div className="flex gap-2">
                 <button className="flex-1 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-xs">
-                  Previous
+                  {t("dashboard.previous")}
                 </button>
                 <button className="flex-1 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-xs">
-                  Next
+                  {t("dashboard.next")}
                 </button>
               </div>
             </Card>
@@ -705,13 +722,13 @@ export const Dashboard = () => {
             <Card className="p-4">
               <div className="mb-3">
                 <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                  Total Earning
+                  {t("dashboard.totalEarning")}
                 </h3>
                 <p className="text-lg font-bold text-gray-900 dark:text-white mt-1">
                   + {totalEarning.toLocaleString()}
                 </p>
                 <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
-                  trend title {trendPercentage}%
+                  {t("dashboard.trendTitle")} {trendPercentage}%
                 </p>
               </div>
               <ResponsiveContainer key={theme} width="100%" height={100}>
@@ -764,25 +781,37 @@ export const Dashboard = () => {
               value={`$${totalEarning.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
               })}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="💰"
             />
             <KPICard
               title={t("dashboard.views")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="👁️"
             />
             <KPICard
               title={t("dashboard.totalSales")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="📊"
             />
             <KPICard
               title={t("dashboard.subscriptions")}
               value={`+ ${totalEarning.toLocaleString()}`}
-              trend={{ label: t("dashboard.trendTitle"), percentage: trendPercentage }}
+              trend={{
+                label: t("dashboard.trendTitle"),
+                percentage: trendPercentage,
+              }}
               icon="📈"
             />
           </div>
@@ -791,81 +820,81 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-6">
             <Card className="lg:col-span-2 overflow-x-hidden">
               <h2 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-6">
-                Overview
+                {t("dashboard.overview")}
               </h2>
               <div className="w-full overflow-x-auto">
                 <div className="min-w-[600px] sm:min-w-0 h-[300px] sm:h-[500px]">
                   <ResponsiveContainer key={theme} width="100%" height="100%">
-                <BarChart data={overviewDataWithBackground}>
-                  <defs>
-                    <linearGradient
-                      id="barGradient"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor={isDark ? "#000" : "#e5e7eb"}
-                        stopOpacity="0"
+                    <BarChart data={overviewDataWithBackground}>
+                      <defs>
+                        <linearGradient
+                          id="barGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor={isDark ? "#000" : "#e5e7eb"}
+                            stopOpacity="0"
+                          />
+                          <stop
+                            offset="50%"
+                            stopColor={isDark ? "#000" : "#e5e7eb"}
+                            stopOpacity="0.2"
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor={isDark ? "#000" : "#e5e7eb"}
+                            stopOpacity="0.9"
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="0" />
+                      <XAxis
+                        dataKey="month"
+                        stroke={axisColor}
+                        tick={{ fill: axisColor }}
                       />
-                      <stop
-                        offset="50%"
-                        stopColor={isDark ? "#000" : "#e5e7eb"}
-                        stopOpacity="0.2"
+                      <YAxis stroke={axisColor} tick={{ fill: axisColor }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: tooltipBg,
+                          border: `1px solid ${tooltipBorder}`,
+                          borderRadius: "8px",
+                          color: tooltipText,
+                        }}
+                        labelStyle={{ color: tooltipText }}
+                        cursor={false}
                       />
-                      <stop
-                        offset="100%"
-                        stopColor={isDark ? "#000" : "#e5e7eb"}
-                        stopOpacity="0.9"
+                      <Bar
+                        dataKey="value"
+                        stackId="stack"
+                        fill={primaryColor}
+                        radius={[4, 4, 0, 0]}
+                        activeBar={{ fill: secondaryColor }}
                       />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="0" />
-                  <XAxis
-                    dataKey="month"
-                    stroke={axisColor}
-                    tick={{ fill: axisColor }}
-                  />
-                  <YAxis stroke={axisColor} tick={{ fill: axisColor }} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: tooltipBg,
-                      border: `1px solid ${tooltipBorder}`,
-                      borderRadius: "8px",
-                      color: tooltipText,
-                    }}
-                    labelStyle={{ color: tooltipText }}
-                    cursor={false}
-                  />
-                  <Bar
-                    dataKey="value"
-                    stackId="stack"
-                    fill={primaryColor}
-                    radius={[4, 4, 0, 0]}
-                    activeBar={{ fill: secondaryColor }}
-                  />
-                  <Bar
-                    dataKey="remaining"
-                    stackId="stack"
-                    fill="url(#barGradient)"
-                    radius={[4, 4, 0, 0]}
-                    isAnimationActive={false}
-                    activeBar={{ fill: "url(#barGradient)" }}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+                      <Bar
+                        dataKey="remaining"
+                        stackId="stack"
+                        fill="url(#barGradient)"
+                        radius={[4, 4, 0, 0]}
+                        isAnimationActive={false}
+                        activeBar={{ fill: "url(#barGradient)" }}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </Card>
 
             <Card>
               <h2 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                Recent Sales
+                {t("dashboard.recentSales")}
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                You made 350 sales this month
+                {t("dashboard.salesThisMonth", { count: 350 })}
               </p>
               <div className="space-y-4">
                 {recentSales.map((sale) => (
@@ -897,26 +926,26 @@ export const Dashboard = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Stats
+                {t("dashboard.stats")}
               </h2>
               <div className="flex items-center gap-2">
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
-                  <option>Years</option>
+                  <option>{t("dashboard.years")}</option>
                 </select>
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
                   <option>Aug 20th - Dec 4th</option>
                 </select>
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
-                  <option>compared to Previous</option>
+                  <option>{t("dashboard.comparedToPrevious")}</option>
                 </select>
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
                   <option>2024</option>
                 </select>
                 <button className="px-4 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                  + Add
+                  {t("dashboard.add")}
                 </button>
                 <button className="px-4 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700">
-                  Edit
+                  {t("dashboard.edit")}
                 </button>
               </div>
             </div>
@@ -926,7 +955,7 @@ export const Dashboard = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Total Earning
+                      {t("dashboard.totalEarning")}
                     </h3>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                       ${" "}
@@ -982,7 +1011,7 @@ export const Dashboard = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Total Earning
+                      {t("dashboard.totalEarning")}
                     </h3>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                       ${" "}
@@ -1065,7 +1094,7 @@ export const Dashboard = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Subscriptions
+                      {t("dashboard.subscriptions")}
                     </h3>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                       + {totalEarning.toLocaleString()}
@@ -1108,7 +1137,7 @@ export const Dashboard = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Total Earning
+                      {t("dashboard.totalEarning")}
                     </h3>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                       ${" "}
@@ -1186,17 +1215,17 @@ export const Dashboard = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Stats
+                {t("dashboard.stats")}
               </h2>
               <div className="flex items-center gap-2">
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
-                  <option>Years</option>
+                  <option>{t("dashboard.years")}</option>
                 </select>
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
                   <option>Aug 20th - Dec 4th</option>
                 </select>
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
-                  <option>compared to Previous</option>
+                  <option>{t("dashboard.comparedToPrevious")}</option>
                 </select>
                 <select className="px-3 py-2 bg-white dark:bg-[#151515] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white">
                   <option>2024</option>
@@ -1261,7 +1290,7 @@ export const Dashboard = () => {
               <div className="bg-white dark:bg-[#151515] rounded-xl p-6 shadow-sm">
                 <div className="mb-4">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Total Sales
+                    {t("dashboard.totalSales")}
                   </h3>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     + {totalEarning.toLocaleString()}
@@ -1314,7 +1343,7 @@ export const Dashboard = () => {
               <div className="bg-white dark:bg-[#151515] rounded-xl p-6 shadow-sm">
                 <div className="mb-4">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Total Views
+                    {t("dashboard.totalViews")}
                   </h3>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     + {totalEarning.toLocaleString()}
@@ -1370,10 +1399,10 @@ export const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="bg-white dark:bg-[#151515] rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Subscriptions Performers
+                {t("dashboard.subscriptionsPerformers")}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Follower This Years
+                {t("dashboard.followerThisYears")}
               </p>
               <div className="flex items-center gap-4 mb-4">
                 <p className="text-4xl font-bold text-gray-900 dark:text-white">
@@ -1446,16 +1475,16 @@ export const Dashboard = () => {
                 </BarChart>
               </ResponsiveContainer>
               <button className="w-full mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all">
-                Get Started
+                {t("dashboard.getStarted")}
               </button>
             </div>
 
             <div className="bg-white dark:bg-[#151515] rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Top Sales Product
+                {t("dashboard.topSalesProduct")}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Manage your payments.
+                {t("dashboard.manageYourPayments")}
               </p>
               <div className="space-y-3 mb-4">
                 {topProducts.map((product) => (
@@ -1480,20 +1509,20 @@ export const Dashboard = () => {
               </div>
               <div className="flex gap-2">
                 <button className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-sm">
-                  Previous
+                  {t("dashboard.previous")}
                 </button>
                 <button className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-sm">
-                  Next
+                  {t("dashboard.next")}
                 </button>
               </div>
             </div>
 
             <div className="bg-white dark:bg-[#151515] rounded-xl p-6 shadow-sm">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                Payment History
+                {t("dashboard.paymentHistory")}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Manage your payments.
+                {t("dashboard.manageYourPayments")}
               </p>
               <div className="space-y-3 mb-4">
                 {paymentHistory.map((payment) => (
@@ -1525,10 +1554,10 @@ export const Dashboard = () => {
               </div>
               <div className="flex gap-2">
                 <button className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-sm">
-                  Previous
+                  {t("dashboard.previous")}
                 </button>
                 <button className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all text-sm">
-                  Next
+                  {t("dashboard.next")}
                 </button>
               </div>
             </div>
